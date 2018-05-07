@@ -41,4 +41,37 @@ class MetricController < ApplicationController
   def manage
     @metrics = Metric.all.paginate(:page => params[:page], :per_page => 10)
   end
+
+  def update_all
+    metrics = Metric.all
+    metrics.map { |r| r.update_threshold }
+  end
+
+  def update
+    metric = Metric.where(redash_id: params[:id]).first
+    metric.update_threshold
+  end
+
+  def delete
+    metric = Metric.where(redash_id: params[:id]).first
+    metric.destroy
+  end
+
+  def new
+
+  end
+
+  def create
+    redash_id = params[:redash_id]
+    time_column = params[:time_column]
+    value_column = params[:value_column]
+    time_unit = params[:time_unit]
+    value_type = params[:value_type]
+    email = params[:email]
+
+    metric = Metric.create(redash_id: redash_id, time_column: time_column,
+    value_column: value_type, time_unit: time_unit, value_type: value_type, email: email)
+    
+    metric.update_threshold
+  end
 end
