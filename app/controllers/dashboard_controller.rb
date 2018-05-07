@@ -11,7 +11,7 @@ class DashboardController < ApplicationController
 
 		most_metrics_alert= 'gmv daily'
 
-		graph_data = Statistic.calculate_order_graph_data(alerts)
+		graph_data = Statistic.calculate_alert_graph_data(alerts)
 
 		@result = {
 			total_metrics: total_metrics,
