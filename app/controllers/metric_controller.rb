@@ -40,6 +40,9 @@ class MetricController < ApplicationController
 
   def manage
     @metrics = Metric.all.paginate(:page => params[:page], :per_page => 10)
+    @test = HawkPython.test_python
+    puts 'TESSSSSSSSS'
+    puts @test
   end
 
   def update_all

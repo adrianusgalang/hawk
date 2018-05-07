@@ -4,13 +4,13 @@ class Metric < ApplicationRecord
 
 
 	def update_threshold
-		threshold = Hawk.get_threshold(self.redash_id, self.time_column, self.value_column, self.time_unit, self.value_unit)
+		threshold = HawkPython.get_threshold(self.redash_id, self.time_column, self.value_column, self.time_unit, self.value_unit)
 		self.upper_threshold = threshold[:upper_threshold]
 		self.lower_threshold = threshold[:lower_threshold]
 	end
 
 	def send_alert
-		Hawk.send_alert_hawk(self.redash_id, self.time_column, self.value_column, self.time_unit, self.value_unit, self.upper_threshold, self.lower_threshold)
+		HawkPython.send_alert_hawk(self.redash_id, self.time_column, self.value_column, self.time_unit, self.value_unit, self.upper_threshold, self.lower_threshold)
 	end
 
 

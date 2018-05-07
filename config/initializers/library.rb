@@ -1,2 +1,2 @@
 require 'statistic.rb'
-require 'hawk.rb'
+require 'hawk_python.rb'
