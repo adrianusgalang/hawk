@@ -26,20 +26,6 @@ class MetricController < ApplicationController
     average_lower_value = alerts.where(is_upper: false).average(:value)
     graph_data = Statistic.calculate_alert_graph_data(alerts)
 
-    # respond_to do |format|
-    #   format.json do
-    #     render json: {
-    #       total_alert: total_alert,
-    #       total_upper_alert: total_upper_alert,
-    #       total_lower_alert: total_lower_alert,
-    #       maximum_value: maximum_value,
-    #       average_upper_value: average_upper_value,
-    #       minimum_value: minimum_value,
-    #       average_lower_value: average_lower_value,
-    #       graph_data: graph_data
-    #     }.to_json
-    #   end
-    # end
     render json: {
           total_alert: total_alert,
           total_upper_alert: total_upper_alert,
@@ -56,13 +42,10 @@ class MetricController < ApplicationController
 
   def manage
     @metrics = Metric.all.paginate(:page => params[:page], :per_page => 10)
-
-    # @hashed = @metrics[0].instance_variables.each_with_object({}) { |var, hash| hash[var.to_s.delete("@")] = @metrics[0].instance_variable_get(var) }
     render json: @metrics.map do |metric|
       metric.to_hash
     end.to_json
 
-    # @test = HawkPython.test_python
   end
 
   def update_all
@@ -76,11 +59,16 @@ class MetricController < ApplicationController
   end
 
   def edit
-
+    metric = Metric.where(redash_id: params[:id]).first
+    render json: metric.to_json
   end
 
   def update
-    
+    metric = Metric.where(redash_id: params[:id]).first
+    metric.update(time_column: params.permit[:time_column], value_column: params.permit[:value_column],
+      time_unit: params.permit[:time_unit],
+      value_type: params.permit[:value_type],
+      email: params.permit[:email])
   end
 
   def delete
@@ -93,16 +81,10 @@ class MetricController < ApplicationController
   end
 
   def create
-    redash_id = params[:redash_id]
-    time_column = params[:time_column]
-    value_column = params[:value_column]
-    time_unit = params[:time_unit]
-    value_type = params[:value_type]
-    email = params[:email]
-
-    metric = Metric.create(redash_id: redash_id, time_column: time_column,
-    value_column: value_type, time_unit: time_unit, value_type: value_type, email: email)
+    metric = Metric.create(redash_id: params.permit[:redash_id], time_column: params.permit[:time_column],
+    value_column: params.permit[:value_column], time_unit: params.permit[:time_unit],
+    value_type: params.permit[:value_type], email: params.permit[:email])
     
-    metric.update_threshold
+    metric.set_threshold
   end
 end

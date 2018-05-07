@@ -14,12 +14,12 @@ Rails.application.routes.draw do
       post :update_threshold
       post :update
       post :delete
+      get :edit
     end
 
     collection do
       get :manage
       get :new
-      get :edit
       post :update_all
     end
   end
