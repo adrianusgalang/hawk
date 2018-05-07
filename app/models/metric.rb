@@ -16,7 +16,7 @@ class Metric < ApplicationRecord
   end
 
 	def send_alert
-		HawkPython.send_alert_hawk(self.redash_id, self.time_column, self.value_column, self.time_unit, self.value_unit, self.upper_threshold, self.lower_threshold)
+		HawkPython.send_alert_hawk(self.redash_id, self.time_column, self.value_column, self.time_unit, self.value_type, self.upper_threshold, self.lower_threshold)
 	end
 
 	def to_hash
@@ -25,7 +25,7 @@ class Metric < ApplicationRecord
       time_column: self.time_column,
       value_column: self.value_column,
       time_unit: self.time_unit,
-      value_unit: self.value_unit
+      value_type: self.value_type
     }
   end
 
