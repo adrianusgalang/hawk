@@ -32,7 +32,7 @@ end
 
 every '0 0 1 * *' do
   rake "hawkscheduler:alerting_monthly"
-  rake "hawkscheduler:alerting_weekly"
+  rake "hawkscheduler:update_weekly"
 end
 
 every '0 * * * *' do
