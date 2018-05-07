@@ -10,6 +10,17 @@ Rails.application.routes.draw do
   resources :metric, only: [] do
     member do
       get :statistic
+      post :create
+      post :update
+      post :delete
+    end
+
+    collection do
+      get :manage
+      get :new
+      post :update_all
     end
   end
+
+
 end
