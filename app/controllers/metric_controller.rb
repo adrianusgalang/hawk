@@ -50,15 +50,19 @@ class MetricController < ApplicationController
           average_lower_value: average_lower_value,
           graph_data: graph_data
         }.to_json
-
   end
+
+  
 
   def manage
     @metrics = Metric.all.paginate(:page => params[:page], :per_page => 10)
 
-    @test = HawkPython.test_python
-    puts 'TESSSSSSSSS'
-    puts @test
+    # @hashed = @metrics[0].instance_variables.each_with_object({}) { |var, hash| hash[var.to_s.delete("@")] = @metrics[0].instance_variable_get(var) }
+    render json: @metrics.map do |metric|
+      metric.to_hash
+    end.to_json
+
+    # @test = HawkPython.test_python
   end
 
   def update_all
