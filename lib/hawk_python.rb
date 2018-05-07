@@ -1,3 +1,4 @@
+require 'json'
 class HawkPython
 
 	HAWK_PATH = File.join(Rails.root, 'hawk_python')
@@ -21,8 +22,10 @@ class HawkPython
 
   def self.test_python
     result = `python "#{HAWK_PATH}/test.py lalala"`
+    puts "tes hawk python-------"
+    puts result
     Rails.logger.info(result)
-    return result
+    return JSON.parse(result)
   end
 
 end

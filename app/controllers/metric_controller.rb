@@ -26,20 +26,36 @@ class MetricController < ApplicationController
     average_lower_value = alerts.where(is_upper: false).average(:value)
     graph_data = Statistic.calculate_alert_graph_data(alerts)
 
-    @result = {
-      total_alert: total_alert,
-      total_upper_alert: total_upper_alert,
-      total_lower_alert: total_lower_alert,
-      maximum_value: maximum_value,
-      average_upper_value: average_upper_value,
-      minimum_value: minimum_value,
-      average_lower_value: average_lower_value,
-      graph_data: graph_data
-    }.to_json
+    # respond_to do |format|
+    #   format.json do
+    #     render json: {
+    #       total_alert: total_alert,
+    #       total_upper_alert: total_upper_alert,
+    #       total_lower_alert: total_lower_alert,
+    #       maximum_value: maximum_value,
+    #       average_upper_value: average_upper_value,
+    #       minimum_value: minimum_value,
+    #       average_lower_value: average_lower_value,
+    #       graph_data: graph_data
+    #     }.to_json
+    #   end
+    # end
+    render json: {
+          total_alert: total_alert,
+          total_upper_alert: total_upper_alert,
+          total_lower_alert: total_lower_alert,
+          maximum_value: maximum_value,
+          average_upper_value: average_upper_value,
+          minimum_value: minimum_value,
+          average_lower_value: average_lower_value,
+          graph_data: graph_data
+        }.to_json
+
   end
 
   def manage
     @metrics = Metric.all.paginate(:page => params[:page], :per_page => 10)
+
     @test = HawkPython.test_python
     puts 'TESSSSSSSSS'
     puts @test

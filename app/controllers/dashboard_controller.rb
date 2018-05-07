@@ -13,12 +13,12 @@ class DashboardController < ApplicationController
 
 		graph_data = Statistic.calculate_alert_graph_data(alerts)
 
-		@result = {
-			total_metrics: total_metrics,
-			total_alerts: total_alerts,
-			most_metrics_alert: most_metrics_alert,
-			graph_data: graph_data
-		}.to_json
+    render json: {
+      total_metrics: total_metrics,
+      total_alerts: total_alerts,
+      most_metrics_alert: most_metrics_alert,
+      graph_data: graph_data
+    }.to_json
 	end
 
 end
