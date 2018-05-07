@@ -9,7 +9,7 @@ class Hawk
   end
 
   def send_alert_hawk(redash_id, time_column, value_column, time_unit, value_unit, upper_threshold, lower_threshold)
-  	result = `python3 "#{HAWK_PATH}/get_threshold.py" "#{redash_id}, #{time_column}, #{value_column}, #{time_unit}, #{value_unit}"`
+  	result = `python3 "#{HAWK_PATH}/send_alert.py" "#{redash_id}, #{time_column}, #{value_column}, #{time_unit}, #{value_unit}, #{upper_threshold}, #{lower_threshold}"`
     Rails.logger.info(result)
     result_hash = result.to_h
     

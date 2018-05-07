@@ -11,13 +11,14 @@ Rails.application.routes.draw do
     member do
       get :statistic
       post :create
-      post :update
+      post :update_threshold
       post :delete
     end
 
     collection do
       get :manage
       get :new
+      get 
       post :update_all
     end
   end

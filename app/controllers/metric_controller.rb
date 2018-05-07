@@ -47,9 +47,17 @@ class MetricController < ApplicationController
     metrics.map { |r| r.update_threshold }
   end
 
-  def update
+  def update_threshold
     metric = Metric.where(redash_id: params[:id]).first
     metric.update_threshold
+  end
+
+  def edit
+
+  end
+
+  def update
+    
   end
 
   def delete
