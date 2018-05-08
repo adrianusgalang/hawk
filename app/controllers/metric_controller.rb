@@ -52,12 +52,16 @@ class MetricController < ApplicationController
 
   def update_all
     metrics = Metric.all
-    metrics.map { |r| r.update_threshold }
+    metrics.each do |r|
+      r.update_threshold
+      r.save
+    end
   end
 
   def update_threshold
     metric = Metric.where(redash_id: params[:id]).first
     threshold, response = metric.update_threshold
+    metric.save
     render json: {
       response: response,
       upper_threshold: threshold[:upper_bound],
@@ -99,6 +103,7 @@ class MetricController < ApplicationController
     json_res = metric.to_hash
     json_res['response'] = status
 
+    metric.save
     render json: json_res
 
   end
