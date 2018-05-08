@@ -17,7 +17,6 @@ class MetricController < ApplicationController
 
     alerts = @metric.alerts.where('alerts.created_at >= ? AND alerts.created_at < ?', start_date, end_date)
 
-
     total_alert = alerts.count
     total_upper_alert = alerts.where(is_upper: true).count
     total_lower_alert = alerts.where(is_upper: false).count

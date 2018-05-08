@@ -11,7 +11,7 @@ class HawkPython
     return JSON.parse(result)
   end
 
-  def self.update_threshold(redash_id, time_column, value_column, value_type, mean = 'NaN', flags = 'NaN', new_flag = 'NaN')
+  def self.update_threshold(redash_id, time_column, value_column, value_type, time_unit, mean = 'NaN', flags = 'NaN', new_flag = 'NaN')
     result = `python3 #{HAWK_PATH}/update_threshold.py #{redash_id} #{time_column} #{value_column} #{time_unit} #{value_type} #{mean} #{flag} #{new_flag}`
     # return expectation: upper_threshold, lower_threshold, mean, ourlier_suspected, flags
 
