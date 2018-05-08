@@ -19,14 +19,14 @@ def main(argv):
     mean = None
     new_flags = None
     flags = None
-    if re.match(argv[4], '^[nN]([oO][nN][eE])|([aA][nN]))'):
+    if re.match(argv[5], '^[nN]([oO][nN][eE])|([aA][nN]))'):
         mean = float(argv[5])
     if re.match(argv[6], '^[nN]([oO][nN][eE])|([aA][nN]))'):
         new_flags = argv[6]
     if re.match(argv[7], '^[nN]([oO][nN][eE])|([aA][nN]))'):
         flags = argv[7]
 
-    hawk = Hawk(redash_id=argv[1], time_column=argv[2], value_column=argv[3], value_type='number')
+    hawk = Hawk(redash_id=argv[1], time_column=argv[2], value_column=argv[3], value_type=argv[4])
     res = hawk.update(mean=mean, new_flag=new_flags, flags=flags)
     print(json.dumps(res))
 
