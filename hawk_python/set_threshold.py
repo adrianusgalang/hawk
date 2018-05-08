@@ -1,5 +1,25 @@
 import json
+import sys
 
-r = {'mean': 0.4,'upper_bound': 0.5, 'lower_bound': 0.1, 'redash_title': 'redash_baru'}
-r = json.dumps(r)
-print(r)
+from queryBL.hawk import Hawk
+
+
+def main(argv):
+    """
+    :param argv: list of arguments -->  redash_id,
+                                        time_column,
+                                        value_column,
+                                        value_type
+    """
+    if len(argv) != 5:
+        message = 'need to give 5 arguments (redash_id, time_column, value_column, value_type), given ' + str(len(argv)-1)
+        raise Exception(message)
+    hawk = Hawk(redash_id=argv[1], time_column=argv[2], value_column=argv[3], value_type='number')
+    res = hawk.add()
+    print(json.dumps(res))
+
+
+if __name__ == "__main__":
+    """"""
+    main(sys.argv)
+
