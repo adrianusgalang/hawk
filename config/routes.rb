@@ -10,7 +10,6 @@ Rails.application.routes.draw do
   resources :metric, only: [] do
     member do
       get :statistic
-      post :create
       post :update_threshold
       post :update
       post :delete
@@ -18,6 +17,7 @@ Rails.application.routes.draw do
     end
 
     collection do
+      post :create
       get :manage
       get :new
       post :update_all
