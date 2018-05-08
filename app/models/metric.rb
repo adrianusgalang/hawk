@@ -10,6 +10,7 @@ class Metric < ApplicationRecord
     response = 'ok'
     if threshold.empty?
       response = 'failed'
+    end
     return threshold, response
 	end
 
@@ -20,6 +21,7 @@ class Metric < ApplicationRecord
     response = true
     if threshold.empty?
       response = false
+    end
     return response
   end
 
