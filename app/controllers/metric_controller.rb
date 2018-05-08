@@ -64,8 +64,8 @@ class MetricController < ApplicationController
     metric.save
     render json: {
       response: response,
-      upper_threshold: threshold[:upper_bound],
-      lower_threshold: threshold[:lower_bound]
+      upper_threshold: threshold['upper_bound'],
+      lower_threshold: threshold['lower_bound']
     }
   end
 
