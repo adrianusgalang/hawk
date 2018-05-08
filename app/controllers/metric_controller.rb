@@ -1,4 +1,5 @@
 class MetricController < ApplicationController
+  skip_before_action :verify_authenticity_token, :only => [:update_threshold, :update, :delete, :update_all]
 
   def statistic
     @metric = Metric.where(redash_id: params[:id]).first
