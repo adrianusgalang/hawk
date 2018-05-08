@@ -67,10 +67,7 @@ class MetricController < ApplicationController
 
   def update
     metric = Metric.where(redash_id: params[:id]).first
-    metric.update(time_column: params.permit[:time_column], value_column: params.permit[:value_column],
-      time_unit: params.permit[:time_unit],
-      value_type: params.permit[:value_type],
-      email: params.permit[:email])
+    metric.update(resource_params)
   end
 
   def delete
@@ -83,10 +80,12 @@ class MetricController < ApplicationController
   end
 
   def create
-    metric = Metric.create(redash_id: params.permit[:redash_id], time_column: params.permit[:time_column],
-    value_column: params.permit[:value_column], time_unit: params.permit[:time_unit],
-    value_type: params.permit[:value_type], email: params.permit[:email])
+    metric = Metric.create(resource_params)
     
     metric.set_threshold
+  end
+
+  def resource_params
+    params.require(:metric).permit(:redash_id, :time_column, :value_column, :time_unit, :value_type, :email)
   end
 end
