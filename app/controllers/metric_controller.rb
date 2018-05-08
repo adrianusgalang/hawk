@@ -43,7 +43,7 @@ class MetricController < ApplicationController
   
 
   def manage
-    @metrics = Metric.all.paginate(:page => params[:page], :per_page => 10)
+    @metrics = Metric.all
     render json: @metrics.map do |metric|
       metric.to_hash
     end.to_json
