@@ -7,12 +7,12 @@ class MetricController < ApplicationController
     if params[:start]
       start_date = Time.zone.parse(params[:start]).beginning_of_day
     else
-      start_date = Time.zone.now.beginning_of_month
+      start_date = Time.zone.now - 1.month
     end
     if params[:end]
       end_date = Time.zone.parse(params[:end]).end_of_day
     else
-      end_date = Time.zone.now.end_of_month
+      end_date = Time.zone.now
     end
 
     alerts = @metric.alerts.where('alerts.created_at >= ? AND alerts.created_at < ?', start_date, end_date)

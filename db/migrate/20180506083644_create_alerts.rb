@@ -5,7 +5,6 @@ class CreateAlerts < ActiveRecord::Migration[5.2]
       t.float :value 
       t.boolean :is_upper
       t.references(:metric, foreign_key: true, index: true)
-      t.timestamp :time_alert
     end
   end
 end
