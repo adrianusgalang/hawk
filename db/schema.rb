@@ -18,7 +18,6 @@ ActiveRecord::Schema.define(version: 2018_05_06_083644) do
     t.float "value"
     t.boolean "is_upper"
     t.bigint "metric_id"
-    t.timestamp "time_alert"
     t.index ["metric_id"], name: "index_alerts_on_metric_id"
   end
 
