@@ -8,7 +8,7 @@ class Metric < ApplicationRecord
 		self.upper_threshold = threshold['upper_threshold']
 		self.lower_threshold = threshold['lower_threshold']
     response = 'ok'
-    if threshold.empty?:
+    if threshold.empty?
       response = 'failed'
     return threshold, response
 	end
@@ -18,7 +18,7 @@ class Metric < ApplicationRecord
     self.upper_threshold = threshold['upper_threshold']
     self.lower_threshold = threshold['lower_threshold']
     response = true
-    if threshold.empty?:
+    if threshold.empty?
       response = false
     return response
   end
