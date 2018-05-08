@@ -80,7 +80,8 @@ class MetricController < ApplicationController
   end
 
   def delete
-    metric = Metric.where(redash_id: params[:id]).first
+    metric = Metric.where(id: params[:id]).first
+    metric.alerts.destroy_all
     metric.destroy
   end
 

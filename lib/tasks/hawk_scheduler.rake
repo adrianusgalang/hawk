@@ -4,7 +4,7 @@ namespace :hawkscheduler do
 	task :alerting_daily => :environment do
 		metrics = Metric.where(time_unit: 'daily')
 		metrics.map { |r|
-			HawkPython.send_alert_hawk(r.redash_id, r.time_column, r.value_column, r.time_unit, r.value_type, r.upper_threshold, r.lower_threshold, Time.now.strftime("%F %H:%M:%S"))
+			HawkPython.send_alert_hawk(r.redash_id, r.time_column, r.value_column, r.time_unit, r.value_type, r.upper_threshold, r.lower_threshold, 1.day.ago.strftime("%FT%H:%M:%S"), r.email)
 		}
 		print('done!')
 	end
@@ -12,7 +12,7 @@ namespace :hawkscheduler do
 		metrics = Metric.where(time_unit: 'weekly')
 		metrics = Metric.all
 		metrics.map { |r|
-			HawkPython.send_alert_hawk(r.redash_id, r.time_column, r.value_column, r.time_unit, r.value_type, r.upper_threshold, r.lower_threshold, Time.now.strftime("%F %H:%M:%S"))
+			HawkPython.send_alert_hawk(r.redash_id, r.time_column, r.value_column, r.time_unit, r.value_type, r.upper_threshold, r.lower_threshold, 1.day.ago.strftime("%FT%H:%M:%S"), r.email)
 		}
 		print('done!')
 	end
@@ -20,7 +20,7 @@ namespace :hawkscheduler do
 		metrics = Metric.where(time_unit: 'monthly')
 		metrics = Metric.all
 		metrics.map { |r|
-			HawkPython.send_alert_hawk(r.redash_id, r.time_column, r.value_column, r.time_unit, r.value_type, r.upper_threshold, r.lower_threshold, Time.now.strftime("%F %H:%M:%S"))
+			HawkPython.send_alert_hawk(r.redash_id, r.time_column, r.value_column, r.time_unit, r.value_type, r.upper_threshold, r.lower_threshold, 1.day.ago.strftime("%FT%H:%M:%S"), r.email)
 		}
 		print('done!')
 	end
@@ -28,7 +28,7 @@ namespace :hawkscheduler do
 		metrics = Metric.where(time_unit: 'hourly')
 		metrics = Metric.all
 		metrics.map { |r|
-			HawkPython.send_alert_hawk(r.redash_id, r.time_column, r.value_column, r.time_unit, r.value_type, r.upper_threshold, r.lower_threshold, Time.now.strftime("%F %H:%M:%S"))
+			HawkPython.send_alert_hawk(r.redash_id, r.time_column, r.value_column, r.time_unit, r.value_type, r.upper_threshold, r.lower_threshold, 1.day.ago.strftime("%FT%H:%M:%S"), r.email)
 		}
 		print('done!')
 	end
