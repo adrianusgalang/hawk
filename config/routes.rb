@@ -8,19 +8,19 @@ Rails.application.routes.draw do
   end
 
   resources :metric, only: [] do
+    collection do
+      post :update_all
+      post :create
+      get :manage
+      get :new
+    end
+
     member do
       get :statistic
       post :update_threshold
       post :update
       post :delete
       get :edit
-    end
-
-    collection do
-      post :create
-      get :manage
-      get :new
-      post :update_all
     end
   end
 

@@ -43,7 +43,7 @@ class MetricController < ApplicationController
   
 
   def manage
-    @metrics = Metric.all.paginate(:page => params[:page], :per_page => 10)
+    @metrics = Metric.all
     render json: @metrics.map do |metric|
       metric.to_hash
     end.to_json
@@ -52,12 +52,21 @@ class MetricController < ApplicationController
 
   def update_all
     metrics = Metric.all
-    metrics.map { |r| r.update_threshold }
+    metrics.each do |r|
+      r.update_threshold
+      r.save
+    end
   end
 
   def update_threshold
     metric = Metric.where(redash_id: params[:id]).first
-    metric.update_threshold
+    threshold, response = metric.update_threshold
+    metric.save
+    render json: {
+      response: response,
+      upper_threshold: threshold['upper_bound'],
+      lower_threshold: threshold['lower_bound']
+    }
   end
 
   def edit
@@ -67,10 +76,7 @@ class MetricController < ApplicationController
 
   def update
     metric = Metric.where(redash_id: params[:id]).first
-    metric.update(time_column: params.permit[:time_column], value_column: params.permit[:value_column],
-      time_unit: params.permit[:time_unit],
-      value_type: params.permit[:value_type],
-      email: params.permit[:email])
+    metric.update(resource_params)
   end
 
   def delete
@@ -83,10 +89,26 @@ class MetricController < ApplicationController
   end
 
   def create
-    metric = Metric.create(redash_id: params.permit[:redash_id], time_column: params.permit[:time_column],
-    value_column: params.permit[:value_column], time_unit: params.permit[:time_unit],
-    value_type: params.permit[:value_type], email: params.permit[:email])
+    metric = Metric.create(resource_params)
+    create_status = true
+    if Metric.where(redash_id: params[:redash_id]).nil?
+      create_status = false
+    end
+    response = metric.set_threshold
+    status = 'failed'
+    if create_status and response
+      status = 'ok'
+    end
     
-    metric.set_threshold
+    json_res = metric.to_hash
+    json_res['response'] = status
+
+    metric.save
+    render json: json_res
+
+  end
+
+  def resource_params
+    params.require(:metric).permit(:redash_id, :time_column, :value_column, :time_unit, :value_type, :email)
   end
 end
