@@ -19,14 +19,29 @@ class Statistic
     end
   end
 
-  # def self.average_alert_daily(alerts)
-  #   result = alerts.group('DATE(created_at)').average
-  #   return result
-  # end
+  def self.average_alert_daily(alerts)
+    result = alerts
+      .order('created_date ASC')
+      .group('created_date')  
+      .select("DATE(created_at) AS created_date, COUNT(id) AS counts")
 
-  # def self.average_alert_weekly(alerts)
-  #   result = alerts.group('DATE(created_at)').average
-  #   return result
-  # end
+    sum = 0
+    result.each do |p|
+      sum = p.counts + sum
+    end
+    return sum/result.length
+  end
+
+  def self.average_alert_weekly(alerts)
+    result = alerts
+      .order('created_date ASC')
+      .group('created_date')
+      .select("DATE_SUB(created_at, INTERVAL DAYOFWEEK(created_at)-1 DAY) AS created_date, COUNT(id) AS counts")
+    sum = 0
+    result.each do |p|
+      sum = p.counts + sum
+    end
+    return sum/result.length
+  end
 
 end
