@@ -57,11 +57,11 @@ class MetricController < ApplicationController
 
   def update_threshold
     metric = Metric.where(redash_id: params[:id]).first
-    response, threshold = metric.update_threshold
+    threshold, response = metric.update_threshold
     render json: {
       response: response,
-      upper_threshold: threshold[:upper_threshold],
-      lower_threshold: threshold[:lower_threshold]
+      upper_threshold: threshold[:upper_bound],
+      lower_threshold: threshold[:lower_bound]
     }
   end
 

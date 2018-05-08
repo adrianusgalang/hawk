@@ -5,8 +5,8 @@ class Metric < ApplicationRecord
 
 	def update_threshold
 		threshold = HawkPython.update_threshold(self.redash_id, self.time_column, self.value_column, self.value_type)
-		self.upper_threshold = threshold['upper_threshold']
-		self.lower_threshold = threshold['lower_threshold']
+		self.upper_threshold = threshold['upper_bound']
+		self.lower_threshold = threshold['lower_bound']
     response = 'ok'
     if threshold.empty?
       response = 'failed'
@@ -16,8 +16,9 @@ class Metric < ApplicationRecord
 
   def set_threshold
     threshold = HawkPython.set_threshold(self.redash_id, self.time_column, self.value_column, self.value_type)
-    self.upper_threshold = threshold['upper_threshold']
-    self.lower_threshold = threshold['lower_threshold']
+    self.upper_threshold = threshold['upper_bound']
+    self.lower_threshold = threshold['lower_bound']
+    self.redash_title = threshold['redash_title']
     response = true
     if threshold.empty?
       response = false
