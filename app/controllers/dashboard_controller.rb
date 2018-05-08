@@ -11,13 +11,15 @@ class DashboardController < ApplicationController
 
 		most_metrics_alert= 'gmv daily'
 
-		graph_data = Statistic.calculate_alert_graph_data(alerts)
+		graph_data_daily = Statistic.calculate_alert_graph_data_daily(alerts)
+		graph_data_weekly = Statistic.calculate_alert_graph_data_weekly(alerts)
 
     render json: {
       total_metrics: total_metrics,
       total_alerts: total_alerts,
       most_metrics_alert: most_metrics_alert,
-      graph_data: graph_data
+      graph_data_daily: graph_data_daily,
+      graph_data_weekly: graph_data_weekly
     }.to_json
 	end
 

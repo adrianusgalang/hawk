@@ -25,7 +25,8 @@ class MetricController < ApplicationController
     average_upper_value = alerts.where(is_upper: true).average(:value)
     minimum_value = alerts.where(is_upper: false).maximum(:value)
     average_lower_value = alerts.where(is_upper: false).average(:value)
-    graph_data = Statistic.calculate_alert_graph_data(alerts)
+    graph_data_daily = Statistic.calculate_alert_graph_data_daily(alerts)
+    graph_data_weekly = Statistic.calculate_alert_graph_data_weekly(alerts)
 
     render json: {
           total_alert: total_alert,
@@ -35,7 +36,8 @@ class MetricController < ApplicationController
           average_upper_value: average_upper_value,
           minimum_value: minimum_value,
           average_lower_value: average_lower_value,
-          graph_data: graph_data
+          graph_data_daily: graph_data_daily,
+          graph_data_weekly: graph_data_weekly
         }.to_json
   end
 
