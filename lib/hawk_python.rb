@@ -6,18 +6,22 @@ class HawkPython
 
 	def self.set_threshold(redash_id, time_column, value_column, value_type)
 		result = `python3 #{HAWK_PATH}/set_threshold.py #{redash_id} #{time_column} #{value_column} #{value_type}`
+    # return expectation: upper_threshold, lower_threshold, mean, ourlier_suspected
     Rails.logger.info(result)
     return JSON.parse(result)
   end
 
-  def self.update_threshold(redash_id, time_column, value_column, value_type, mean = 'NaN', flag = 'NaN', new_flag = 'NaN')
+  def self.update_threshold(redash_id, time_column, value_column, value_type, mean = 'NaN', flags = 'NaN', new_flag = 'NaN')
     result = `python3 #{HAWK_PATH}/update_threshold.py #{redash_id} #{time_column} #{value_column} #{time_unit} #{value_type} #{mean} #{flag} #{new_flag}`
+    # return expectation: upper_threshold, lower_threshold, mean, ourlier_suspected, flags
+
     Rails.logger.info(result)
     return JSON.parse(result)
   end
 
-  def self.send_alert_hawk(redash_id, time_column, value_column, time_unit, value_type, upper_threshold, lower_threshold)
-  	result = `python3 #{HAWK_PATH}/send_alert.py #{redash_id} #{time_column} #{value_column} #{time_unit} #{value_unit} #{upper_threshold} #{lower_threshold}`
+  def self.send_alert_hawk(redash_id, time_column, value_column, value_type, time_unit, upper_threshold, lower_threshold, time_now)
+  	result = `python3 #{HAWK_PATH}/send_alert.py #{redash_id} #{time_column} #{value_column} #{time_unit} #{value_unit} #{upper_threshold} #{lower_threshold} #{time_now}`
+    # return expectation: is_alert, is_upper, value
     Rails.logger.info(result)
     
     if result['is_alert']
