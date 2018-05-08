@@ -7,14 +7,19 @@ from queryBL.hawk import Hawk
 
 def main(argv):
     """
-
-    :param argv:
-    :return:
+    :param argv: list of arguments -->  redash_id,
+                                        time_column,
+                                        value_column,
+                                        value_type,
+                                        mean(opt)
+                                        string_list_of_new_flags(opt),
+                                        string_of_dict_of-flags(opt),
+    opt argument can change with None or NaN
     """
     if len(argv) != 8:
         message = 'need to give 8 arguments (redash_id, time_column, value_column, value_type, mean(opt), ' \
                   'string_list_of_new_flags(opt), string_of_dict_of-flags(opt)), given ' + str(len(argv)-1) + \
-                  ', give "None" if some doesnt\' have value'
+                  ', give "None" or "Nan" if some doesnt\' have value'
         raise Exception(message)
     mean = None
     new_flags = None

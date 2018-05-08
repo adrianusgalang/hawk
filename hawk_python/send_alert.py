@@ -7,6 +7,17 @@ from queryBL import send_mail
 
 
 def main(argv):
+    """
+    :param argv: list of arguments -->  redash_id,
+                                        time_column,
+                                        value_column,
+                                        value_type,
+                                        time_unit,
+                                        upper_bound,
+                                        lower_bound,
+                                        time_now,
+                                        email_address
+    """
     if len(argv) != 10:
         message = 'need to give 9 arguments(redash_id, time_column, value_column, value_type, time_unit, ' \
                   'upper_bound, lower_bound, time_now, email_address), given ' + str(len(argv) - 1)

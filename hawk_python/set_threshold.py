@@ -6,9 +6,10 @@ from queryBL.hawk import Hawk
 
 def main(argv):
     """
-
-    :param argv:
-    :return:
+    :param argv: list of arguments -->  redash_id,
+                                        time_column,
+                                        value_column,
+                                        value_type
     """
     if len(argv) != 5:
         message = 'need to give 5 arguments (redash_id, time_column, value_column, value_type), given ' + str(len(argv)-1)
