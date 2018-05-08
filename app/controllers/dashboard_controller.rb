@@ -11,7 +11,7 @@ class DashboardController < ApplicationController
 
 		most_metrics_alert= 'gmv daily'
 
-		average_alert_daily = average_alert_daily(alerts)
+		average_alert_daily = 10
 		average_alert_weekly = 1000
 
 		graph_data_daily = Statistic.calculate_alert_graph_data_daily(alerts)
