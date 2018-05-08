@@ -57,7 +57,12 @@ class MetricController < ApplicationController
 
   def update_threshold
     metric = Metric.where(redash_id: params[:id]).first
-    metric.update_threshold
+    response, threshold = metric.update_threshold
+    render json: {
+      response: response,
+      upper_threshold: threshold[:upper_threshold],
+      lower_threshold: threshold[:lower_threshold]
+    }
   end
 
   def edit
@@ -81,8 +86,21 @@ class MetricController < ApplicationController
 
   def create
     metric = Metric.create(resource_params)
+    create_status = true
+    if Metric.where(redash_id: params[:redash_id]).nil?
+      create_status = false
+    end
+    response = metric.set_threshold
+    status = 'failed'
+    if create_status and response
+      status = 'ok'
+    end
     
-    metric.set_threshold
+    json_res = metric.to_hash
+    json_res['response'] = status
+
+    render json: json_res
+
   end
 
   def resource_params

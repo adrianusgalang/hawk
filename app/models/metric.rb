@@ -7,12 +7,20 @@ class Metric < ApplicationRecord
 		threshold = HawkPython.update_threshold(self.redash_id, self.time_column, self.value_column, self.value_type)
 		self.upper_threshold = threshold['upper_threshold']
 		self.lower_threshold = threshold['lower_threshold']
+    response = 'ok'
+    if threshold.empty?:
+      response = 'failed'
+    return threshold, response
 	end
 
   def set_threshold
     threshold = HawkPython.set_threshold(self.redash_id, self.time_column, self.value_column, self.value_type)
     self.upper_threshold = threshold['upper_threshold']
     self.lower_threshold = threshold['lower_threshold']
+    response = true
+    if threshold.empty?:
+      response = false
+    return response
   end
 
 	def send_alert
