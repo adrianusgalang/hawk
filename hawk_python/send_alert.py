@@ -63,7 +63,7 @@ def send_alert_mail(send_to, metrics_name, time, data, files='', cc_to='', bcc_t
         text = text + "decreasing significantly ("
     text = text + str(data["value"]) + "). Please check the metrics to find the root cause."
     # print(text)
-    send_mail(send_to, subject, text, files, cc_to, bcc_to)
+    send_mail(send_to, subject, text, files, cc_to, bcc_to, verbose=0)
 
 
 if __name__ == "__main__":

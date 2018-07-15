@@ -44,4 +44,8 @@ class Statistic
     return sum/result.length
   end
 
+  def self.max_metric()
+    return Metric.select('redash_title, count(alerts.id) as cnt').joins(:alerts).group(:id).order('cnt desc').first.redash_title
+  end
+
 end
