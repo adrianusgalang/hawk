@@ -7,6 +7,7 @@ services:
       - 3000:3000
     volumes:
       - .:/hawk
+      - /hawk/node_modules
     depends_on:
       - db
 
