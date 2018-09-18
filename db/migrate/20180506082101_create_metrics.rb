@@ -11,6 +11,8 @@ class CreateMetrics < ActiveRecord::Migration[5.2]
       t.string :email
       t.float :upper_threshold
       t.float :lower_threshold
+      t.string :result_id
+      t.string :telegram_chanel
     end
   end
 end

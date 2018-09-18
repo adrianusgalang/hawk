@@ -2,34 +2,6 @@ class Metric < ApplicationRecord
 
 	has_many :alerts
 
-
-	def update_threshold
-		threshold = HawkPython.update_threshold(self.redash_id, self.time_column, self.value_column, self.value_type)
-		self.upper_threshold = threshold['upper_bound']
-		self.lower_threshold = threshold['lower_bound']
-    response = 'ok'
-    if threshold.empty?
-      response = 'failed'
-    end
-    return threshold, response
-	end
-
-  def set_threshold
-    threshold = HawkPython.set_threshold(self.redash_id, self.time_column, self.value_column, self.value_type)
-    self.upper_threshold = threshold['upper_bound']
-    self.lower_threshold = threshold['lower_bound']
-    self.redash_title = threshold['redash_title']
-    response = true
-    if threshold.empty?
-      response = false
-    end
-    return response
-  end
-
-	def send_alert
-    HawkPython.send_alert_hawk(self.redash_id, self.time_column, self.value_column, self.value_type, self.time_unit,  self.upper_threshold, self.lower_threshold, 1.day.ago.strftime('%FT%H:%M:%S'), self.email)
-	end
-
 	def to_hash
     {
       redash_id: self.redash_id,

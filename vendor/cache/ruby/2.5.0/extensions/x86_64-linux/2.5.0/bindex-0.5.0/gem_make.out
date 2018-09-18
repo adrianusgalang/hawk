@@ -1,0 +1,15 @@
+current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.5.0/gems/bindex-0.5.0/ext/bindex
+/usr/share/rvm/rubies/ruby-2.5.1/bin/ruby -r ./siteconf20180816-23039-1ndkfzt.rb extconf.rb
+creating Makefile
+
+current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.5.0/gems/bindex-0.5.0/ext/bindex
+make "DESTDIR=" clean
+
+current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.5.0/gems/bindex-0.5.0/ext/bindex
+make "DESTDIR="
+compiling cruby.c
+linking shared-object bindex/cruby.so
+
+current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.5.0/gems/bindex-0.5.0/ext/bindex
+make "DESTDIR=" install
+/usr/bin/install -m 0755 cruby.so ./.gem.20180816-23039-dwf9i0/bindex

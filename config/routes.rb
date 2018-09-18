@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :dashboard, only: [] do
     collection do
       get :summary
+      get :getredash
     end
   end
 
@@ -24,5 +25,20 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :healthz
+
+  resources :alert, only: [] do
+    collection do
+      get :index
+      post :confirmuser
+    end
+  end
+
+  resources :date_exclude, only: [] do
+    collection do
+      get :index
+      post :removedateexclude
+    end
+  end
 
 end

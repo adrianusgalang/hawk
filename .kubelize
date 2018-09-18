@@ -1,0 +1,23 @@
+templateVersion: v2.2.1
+projectName: hawk
+services:
+- name: hawk
+  port: "3000"
+  environments:
+  - name: production
+    replica: "2"
+  - name: sandbox
+    replica: "1"
+  - name: staging
+    replica: "1"
+  nodePort: "13000"
+  healthz: healthz
+  maxMem: "2"
+  maxCpu: "2"
+  minMem: "1"
+  minCpu: "1"
+  limit: false
+  timeout: "1"
+  delay: "30"
+  language: ruby
+  consul: envconsul

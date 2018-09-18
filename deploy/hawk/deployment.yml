@@ -1,0 +1,110 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    release: '{{.variable.VERSION}}'
+  name: {{.config.projectName}}-{{.service.name}}-{{.environment.name}}
+  namespace: {{.variable.VAR_KUBE_NAMESPACE}}
+spec:
+  replicas: {{.environment.replica}}
+  revisionHistoryLimit: 3
+  template:
+    metadata:
+      annotations:
+        release: '{{.variable.VERSION}}'
+      labels:
+        project: {{.config.projectName}}
+        service: {{.service.name}}
+        env: {{.environment.name}}
+    spec:
+      nodeSelector:
+        env: {{.environment.name}}
+      imagePullSecrets:
+      - name: blregistry
+      containers:
+      - name: {{.config.projectName}}-{{.service.name}}
+        image: registry.bukalapak.io/bukalapak/{{.config.projectName}}/{{.service.name}}:{{.variable.VERSION}}
+        livenessProbe:
+          httpGet:
+            path: /{{.service.healthz}}
+            port: {{.service.port}}
+          initialDelaySeconds: {{.service.delay}}
+          timeoutSeconds: {{.service.timeout}}
+        readinessProbe:
+          httpGet:
+            path: /{{.service.healthz}}
+            port: {{.service.port}}
+          initialDelaySeconds: {{.service.delay}}
+          timeoutSeconds: {{.service.timeout}}
+        ports:
+        - containerPort: {{.service.port}}
+        resources:
+          limits:
+            memory: {{.service.maxMem}}Gi
+            cpu: {{.service.maxCpu}}
+          requests:
+            memory: {{.service.minMem}}Gi
+            cpu: {{.service.minCpu}}
+        command:
+        - envconsul
+        - -consul=127.0.0.1:8500
+        - -sanitize
+        - -upcase
+        - -prefix={{.variable.VAR_CONSUL_PREFIX}}
+        - {{.service.name}}
+      - name: consul
+        image: registry.bukalapak.io/bukalapak/consul-image:0.2.0
+        resources:
+          limits:
+            memory: 128Mi
+            cpu: 250m
+          requests:
+            memory: 64Mi
+            cpu: 100m
+        env:
+        - name: SERVICE_NAME
+          value: {{.config.projectName}}-{{.service.name}}
+        - name: SERVICE_ENVIRONMENT
+          value: {{.environment.name}}
+        - name: SERVICE_PORT
+          value: "{{.service.port}}"
+        - name: CONSUL1
+          valueFrom:
+            configMapKeyRef:
+              name: consul-config
+              key: node1
+        - name: CONSUL2
+          valueFrom:
+            configMapKeyRef:
+              name: consul-config
+              key: node2
+        - name: CONSUL3
+          valueFrom:
+            configMapKeyRef:
+              name: consul-config
+              key: node3
+        - name: CONSUL_ENCRYPT
+          valueFrom:
+            configMapKeyRef:
+              name: consul-config
+              key: encrypt
+        - name: CONSUL_DATACENTER
+          valueFrom:
+            configMapKeyRef:
+              name: consul-config
+              key: datacenter
+        ports:
+        - containerPort: 8300
+        - containerPort: 8301
+        - containerPort: 8302
+        - containerPort: 8400
+        - containerPort: 8500
+        - containerPort: 8600
+        command:
+        - entrypoint
+        - agent
+        - -config-dir=/config
+        - -join=$(CONSUL1)
+        - -join=$(CONSUL2)
+        - -join=$(CONSUL3)
+        - -encrypt=$(CONSUL_ENCRYPT)

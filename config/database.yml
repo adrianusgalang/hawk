@@ -1,0 +1,42 @@
+# SQLite version 3.x
+#   gem install sqlite3
+#
+#   Ensure the SQLite 3 gem is defined in your Gemfile
+#   gem 'sqlite3'
+#
+default: &default
+  adapter: mysql2
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  username: <%= ENV['MYSQL_USERNAME_DEV'] %>
+  password: <%= ENV['MYSQL_PASSWORD_DEV'] %>
+  host: <%= ENV['MYSQL_HOST_DEV'] %>
+  port: <%= ENV['MYSQL_PORT_DEV'] %>
+  pool: <%= ENV['MYSQL_POOL_DEV'] %>
+  timeout: <%= ENV['MYSQL_TIMEOUT_DEV'] %>
+  database: hawk_dev
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  <<: *default
+  username: <%= ENV['MYSQL_USERNAME_TEST'] %>
+  password: <%= ENV['MYSQL_PASSWORD_TEST'] %>
+  host: <%= ENV['MYSQL_HOST_TEST'] %>
+  port: <%= ENV['MYSQL_PORT_TEST'] %>
+  pool: <%= ENV['MYSQL_POOL_TEST'] %>
+  timeout: <%= ENV['MYSQL_TIMEOUT_TEST'] %>
+  database: hawk_test
+
+production:
+  <<: *default
+  username: <%= ENV['MYSQL_USERNAME_PROD'] %>
+  password: <%= ENV['MYSQL_PASSWORD_PROD'] %>
+  host: <%= ENV['MYSQL_HOST_PROD'] %>
+  port: <%= ENV['MYSQL_PORT_PROD'] %>
+  pool: <%= ENV['MYSQL_POOL_PROD'] %>
+  timeout: <%= ENV['MYSQL_TIMEOUT_PROD'] %>
+  database: hawk_prod

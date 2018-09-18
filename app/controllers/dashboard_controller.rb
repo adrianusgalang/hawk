@@ -1,6 +1,8 @@
 require 'json'
-class DashboardController < ApplicationController
+require 'httparty'
 
+class DashboardController < ApplicationController
+	skip_before_action :verify_authenticity_token, :only => [:summary, :alert, :dateexclude, :adddateexclude, :removedateexclude]
 
 	def summary
 		metrics = Metric.all

@@ -1,0 +1,2 @@
+class DateExc < ApplicationRecord
+end

@@ -1,5 +1,11 @@
+require 'dotenv'
+require 'telegram/bot'
+require 'date'
+
 class MetricController < ApplicationController
-  skip_before_action :verify_authenticity_token, :only => [:create, :update_all, :update_threshold, :update, :delete, :update_all]
+  skip_before_action :verify_authenticity_token, :only => [:create, :update_all, :update_threshold, :update, :delete, :update_all, :confirmuser]
+  $threadCount = 0
+  $threadLimit = ENV["THREAD_LIMIT"].to_f
 
   def statistic
     @metric = Metric.where(redash_id: params[:id]).first
@@ -40,33 +46,58 @@ class MetricController < ApplicationController
         }.to_json
   end
 
-  
-
   def manage
     @metrics = Metric.all
     render json: @metrics.map do |metric|
       metric.to_hash
     end.to_json
-
   end
 
   def update_all
     metrics = Metric.all
     metrics.each do |r|
-      r.update_threshold
+      checkThread()
+      $threadCount = $threadCount + 1
+      Thread.new{
+        query = r.redash_id
+        time_column = r.time_column
+        value_column = r.value_column
+        time_unit = r.time_unit
+        value_type = r.value_type
+        batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, r.id)
+        if batas_atas != 0 && batas_bawah != 0
+          r.update(upper_threshold: batas_atas,lower_threshold:batas_bawah)
+        elsif
+          puts "warning : data kurang banyak"
+        end
+        $threadCount = $threadCount - 1
+      }
       r.save
     end
   end
 
+  # update threshold
   def update_threshold
-    metric = Metric.where(redash_id: params[:id]).first
-    threshold, response = metric.update_threshold
-    metric.save
-    render json: {
-      response: response,
-      upper_threshold: threshold['upper_bound'],
-      lower_threshold: threshold['lower_bound']
+    metric = Metric.where(id: params[:id]).first
+    Thread.new{
+      checkThread()
+      $threadCount = $threadCount + 1
+      query = metric.redash_id
+      time_column = metric.time_column
+      value_column = metric.value_column
+      time_unit = metric.time_unit
+      value_type = metric.value_type
+      # result_id,batas_bawah,batas_atas = Redash.set_threshold(query, time_column, value_column, time_unit, value_type)
+      batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id)
+      redash_title = Redash.get_redash_title(query)
+      if batas_atas != 0 && batas_bawah != 0
+        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title)
+      elsif
+        puts "warning : data kurang banyak"
+      end
+      $threadCount = $threadCount - 1
     }
+    metric.save
   end
 
   def edit
@@ -81,35 +112,136 @@ class MetricController < ApplicationController
 
   def delete
     metric = Metric.where(id: params[:id]).first
-    metric.alerts.destroy_all
-    metric.destroy
+    alert = Alert.where(metric_id: params[:id])
+    alert.destroy_all
+    metric.delete
   end
 
   def new
 
   end
 
+  # new metrics
   def create
     metric = Metric.create(resource_params)
     create_status = true
     if Metric.where(redash_id: params[:redash_id]).nil?
       create_status = false
     end
-    response = metric.set_threshold
+    Thread.new{
+      checkThread()
+      $threadCount = $threadCount + 1
+      query = params[:metric][:redash_id]
+      time_column = params[:metric][:time_column]
+      value_column = params[:metric][:value_column]
+      time_unit = params[:metric][:time_unit]
+      value_type = params[:metric][:value_type]
+      # batas_bawah,batas_atas = Redash.set_threshold(query, time_column, value_column, time_unit, value_type, metric.id)
+      # batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id)
+      batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id)
+      redash_title = Redash.get_redash_title(query)
+      if batas_atas != 0 && batas_bawah != 0
+        metric.update(result_id: 0, upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title)
+        data = Redash.get_outer_threshold(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas)
+
+        for i in 0..(data.count - 1)
+          alerts = Alert.new
+          alerts.value = data[i][0].to_f
+
+          if data[i][0].to_f < batas_bawah
+            alerts.is_upper = false
+          else
+            alerts.is_upper = true
+          end
+
+          alerts.metric_id = metric.id
+          alerts.exclude_status = 0
+          alerts.date = data[i][1]
+          alerts.save
+        end
+
+      elsif
+        puts "warning : data kurang banyak"
+      end
+      $threadCount = $threadCount - 1
+    }
     status = 'failed'
     if create_status and response
       status = 'ok'
     end
-    
     json_res = metric.to_hash
     json_res['response'] = status
 
     metric.save
     render json: json_res
-
   end
 
   def resource_params
-    params.require(:metric).permit(:redash_id, :time_column, :value_column, :time_unit, :value_type, :email)
+    params.require(:metric).permit(:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel)
   end
+
+  def checkThread()
+    puts "T-H-R-E-A-D C-O-U-N-T"
+    puts $threadCount
+    while $threadCount > $threadLimit
+      sleep(1)
+    end
+  end
+
+  def get_alert(time)
+    metrics = Metric.where(time_unit: time)
+    metrics.each do |r|
+      checkThread()
+      $threadCount = $threadCount + 1
+      Thread.new{
+        id = r.id
+        query = r.redash_id
+        time_column = r.time_column
+        value_column = r.value_column
+        time_unit = r.time_unit
+        upper_threshold = r.upper_threshold
+        lower_threshold = r.lower_threshold
+        value_type = r.value_type
+        value = Redash.get_result(query,value_column,time_unit,time_column,value_type,id)
+        for i in 0..(value.count-1)
+          if value[i][0] < lower_threshold
+            alerts = Alert.new
+            alerts.value = value[i][0]
+            alerts.is_upper = false
+            alerts.metric_id = id
+            alerts.exclude_status = 0
+            alerts.date = value[i][1]
+            alerts.save
+            mail_job = HawkMailer.send_email(query,value[i][0],'lower')
+            mail_job.deliver_now
+            send_tele('lower',query,value[i][0])
+          elsif value[i][0] > upper_threshold
+            alerts = Alert.new
+            alerts.value = value[i][0]
+            alerts.is_upper = true
+            alerts.metric_id = id
+            alerts.exclude_status = 0
+            alerts.date = value[i][1]
+            alerts.save
+            mail_job = HawkMailer.send_email(query,value[i][0],'upper')
+            mail_job.deliver_now
+            send_tele('upper',query,value[i][0])
+          else
+            puts value[i][0]
+            puts "didalam threshold"
+          end
+        end
+        $threadCount = $threadCount - 1
+      }
+      r.save
+    end
+  end
+
+  def send_tele(status,query,value)
+    token = ENV["TOKEN_TELEGRAM_HAWKBOT"]
+    api = ::Telegram::Bot::Api.new(token)
+    date_now = DateTime.current
+    api.call('sendMessage', chat_id: ENV["TELEGRAM_GROUP1"], text: "#{status} - Alert redash id #{query} - #{date_now} : Value : #{value}")
+  end
+
 end

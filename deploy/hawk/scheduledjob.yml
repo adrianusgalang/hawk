@@ -1,0 +1,49 @@
+apiVersion: batch/v2alpha1
+kind: ScheduledJob
+metadata:
+  annotations:
+    release: '{{.variable.VERSION}}'
+  name: {{.config.projectName}}-{{.service.name}}-{{.environment.name}}
+  namespace: {{.variable.VAR_KUBE_NAMESPACE}}
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            release: '{{.variable.VERSION}}'
+          labels:
+            project: {{.config.projectName}}
+            service: {{.service.name}}
+            env: {{.environment.name}}
+        spec:
+          nodeSelector:
+            env: {{.environment.name}}
+          imagePullSecrets:
+          - name: blregistry
+          containers:
+          - name: {{.config.projectName}}-{{.service.name}}
+            image: registry.bukalapak.io/bukalapak/{{.config.projectName}}/{{.service.name}}:{{.variable.VERSION}}
+            resources:
+              limits:
+                memory: {{.service.maxMem}}Gi
+                cpu: {{.service.maxCpu}}
+              requests:
+                memory: {{.service.minMem}}Gi
+                cpu: {{.service.minCpu}}
+            command:
+            - envconsul
+            - -once
+            - -consul=$(CONSUL)
+            - -sanitize
+            - -upcase
+            - -prefix={{.variable.VAR_CONSUL_PREFIX}}
+            - {{.service.name}}
+            env:
+            - name: CONSUL
+              valueFrom:
+                configMapKeyRef:
+                  name: consul-config
+                  key: client
+          restartPolicy: Never

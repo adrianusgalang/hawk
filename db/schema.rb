@@ -10,18 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_05_06_083644) do
+ActiveRecord::Schema.define(version: 2018_08_27_072145) do
 
-  create_table "alerts", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "alerts", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.float "value"
     t.boolean "is_upper"
-    t.bigint "metric_id"
-    t.index ["metric_id"], name: "index_alerts_on_metric_id"
+    t.integer "metric_id"
+    t.integer "exclude_status"
+    t.string "date"
   end
 
-  create_table "metrics", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "date_excs", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "date"
+    t.float "value"
+    t.float "ratio"
+    t.string "time_unit"
+    t.string "redash_id"
+    t.text "note"
+  end
+
+  create_table "metrics", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "redash_id"
@@ -33,7 +45,8 @@ ActiveRecord::Schema.define(version: 2018_05_06_083644) do
     t.string "email"
     t.float "upper_threshold"
     t.float "lower_threshold"
+    t.string "result_id"
+    t.string "telegram_chanel"
   end
 
-  add_foreign_key "alerts", "metrics"
 end
