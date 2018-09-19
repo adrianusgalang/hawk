@@ -136,7 +136,6 @@ class HawkMain
     e = Date.parse date_until.to_s
     # puts Date.parse date_from.to_s - Date.parse date.to_s
     if (c - d).to_s[0..0] == '-' || (c - d).to_s[0..0] == '0'
-      puts "8888888"
       if (d - e).to_s[0..0] == '-' || (d - e).to_s[0..0] == '0'
         return true
       end

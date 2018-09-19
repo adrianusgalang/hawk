@@ -6,16 +6,22 @@ scheduler = Rufus::Scheduler::singleton
 # test scheduler
 scheduler.in '2s' do
   metricController = MetricController.new()
-  metricController.get_alert('daily')
+  # metricController.get_alert('hourly')
   puts "===================== D - O - N - E ===================="
 end
 
-scheduler.cron '04 * * * *' do
+scheduler.every '60s' do
   metricController = MetricController.new()
-  metricController.get_alert('daily')
+  metricController.checkErrorThread()
 end
 
-scheduler.cron '0 10 * * *' do
+scheduler.cron '30 * * * *' do
+  metricController = MetricController.new()
+  metricController.get_alert('hourly')
+end
+
+scheduler.cron '0 4 * * *' do
+
   metricController = MetricController.new()
   metricController.get_alert('daily')
 end
