@@ -145,6 +145,7 @@ class MetricController < ApplicationController
         data = Redash.get_outer_threshold(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas)
 
         for i in 0..(data.count - 1)
+
           alerts = Alert.new
           alerts.value = data[i][0].to_f
 
@@ -153,6 +154,9 @@ class MetricController < ApplicationController
           else
             alerts.is_upper = true
           end
+
+          checkalert = Alert.where(metric_id: metric.id, date: data[i][1])
+          checkalert.destroy_all
 
           alerts.metric_id = metric.id
           alerts.exclude_status = 0
@@ -182,8 +186,6 @@ class MetricController < ApplicationController
   end
 
   def checkThread()
-    puts "T-H-R-E-A-D C-O-U-N-T"
-    puts $threadCount
     while $threadCount > $threadLimit
       sleep(1)
     end
@@ -211,10 +213,14 @@ class MetricController < ApplicationController
         lower_threshold = r.lower_threshold
         telegram_chanel = r.telegram_chanel || 557559054
         redash_t = r.redash_title
+        email_to = r.email
         value_type = r.value_type
         value = Redash.get_result(query,value_column,time_unit,time_column,value_type,id)
         for i in 0..(value.count-1)
           if value[i][0] < lower_threshold
+            checkalert = Alert.where(metric_id: id, date: value[i][1])
+            checkalert.destroy_all
+
             alerts = Alert.new
             alerts.value = value[i][0]
             alerts.is_upper = false
@@ -222,8 +228,6 @@ class MetricController < ApplicationController
             alerts.exclude_status = 0
             alerts.date = value[i][1]
             alerts.save
-            mail_job = HawkMailer.send_email(query,value[i][0],'lower')
-            mail_job.deliver_now
 
             cortabot = Cortabot.new()
             redash_title = redash_t
@@ -237,8 +241,13 @@ class MetricController < ApplicationController
             telegram_chanel_id = telegram_chanel
             cortabot.send_cortabot(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id)
 
+            mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
+            mail_job.deliver_now
             # send_tele('lower',query,value[i][0])
           elsif value[i][0] > upper_threshold
+            checkalert = Alert.where(metric_id: id, date: value[i][1])
+            checkalert.destroy_all
+
             alerts = Alert.new
             alerts.value = value[i][0]
             alerts.is_upper = true
@@ -246,8 +255,6 @@ class MetricController < ApplicationController
             alerts.exclude_status = 0
             alerts.date = value[i][1]
             alerts.save
-            mail_job = HawkMailer.send_email(query,value[i][0],'upper')
-            mail_job.deliver_now
 
             cortabot = Cortabot.new()
             redash_title = redash_t
@@ -261,6 +268,8 @@ class MetricController < ApplicationController
             telegram_chanel_id = telegram_chanel
             cortabot.send_cortabot(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id)
 
+            mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
+            mail_job.deliver_now
             # send_tele('upper',query,value[i][0])
           else
             puts value[i][0]

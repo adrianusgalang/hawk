@@ -8,28 +8,29 @@ HAWK is a system that allows anyone on Bukalapak to do monitoring on their metri
 - Response time: <10ms
 
 ## Request Flows
-![alt text](https://github.com/bukalapak/hawk/blob/prototype_9/pic/img6.png)
+![alt text](https://github.com/bukalapak/hawk/blob/prototype-10/pic/hawk.png)
 
 ## Endpoints
-- [GET] hawk/dashboard/summary
+- [GET] /dashboard/summary
 
-- [POST] hawk/metric/update_all
-- [POST] hawk/metric/create
-- [GET] hawk/metric/manage
-- [GET] hawk/metric/new
+- [POST] /metric/update_all
+- [POST] /metric/create
+- [GET] /metric/manage
+- [GET] /metric/new
 
-- [GET] hawk/healthz
+- [GET] /healthz
 
-- [GET] hawk/alert
-- [POST] hawk/alert/confirmuser
+- [GET] /alert
+- [POST] /alert/confirmuser
 
-- [GET] hawk/date_exclude
-- [POST] hawk/date_exclude/removedateexclude
+- [GET] /date_exclude
+- [POST] /date_exclude/removedateexclude
 
 
 ## Dependencies
 - Ruby 2.5.1
 - mysql 5.7
+- Redash (http://redash.bukalapak.io)
 
 ## Architecture Diagram
 HAWK use Statistical Process Control (SPC) to this monitoring system. SPC is commonly used in industry to determine whether a process is under control or not.  
@@ -88,13 +89,9 @@ rake db:migrate
 +--------------------+
 | Database           |
 +--------------------+
-| information_schema |
 | hawk_dev           |
 | hawk_prod          |
 | hawk_test          |
-| mysql              |
-| performance_schema |
-| sys                |
 +--------------------+
 ```
 - Table list
@@ -103,23 +100,24 @@ rake db:migrate
 | Tables_in_hawk_dev   |
 +----------------------+
 | alerts               |
-| ar_internal_metadata |
+| date_excs            |
 | metrics              |
-| schema_migrations    |
 +----------------------+
 ```
 - Alerts Table
 ```
-+------------+------------+------+-----+---------+----------------+
-| Field      | Type       | Null | Key | Default | Extra          |
-+------------+------------+------+-----+---------+----------------+
-| id         | bigint(20) | NO   | PRI | NULL    | auto_increment |
-| created_at | datetime   | NO   |     | NULL    |                |
-| updated_at | datetime   | NO   |     | NULL    |                |
-| value      | float      | YES  |     | NULL    |                |
-| is_upper   | tinyint(1) | YES  |     | NULL    |                |
-| metric_id  | int(11)    | YES  |     | NULL    |                |
-+------------+------------+------+-----+---------+----------------+
++----------------+--------------+------+-----+---------+----------------+
+| Field          | Type         | Null | Key | Default | Extra          |
++----------------+--------------+------+-----+---------+----------------+
+| id             | bigint(20)   | NO   | PRI | NULL    | auto_increment |
+| created_at     | datetime     | NO   |     | NULL    |                |
+| updated_at     | datetime     | NO   |     | NULL    |                |
+| value          | float        | YES  |     | NULL    |                |
+| is_upper       | tinyint(1)   | YES  |     | NULL    |                |
+| metric_id      | int(11)      | YES  |     | NULL    |                |
+| exclude_status | int(11)      | YES  |     | NULL    |                |
+| date           | varchar(255) | YES  |     | NULL    |                |
++----------------+--------------+------+-----+---------+----------------+
 ```
 - Metrics Table
 ```
@@ -139,6 +137,7 @@ rake db:migrate
 | upper_threshold | float        | YES  |     | NULL    |                |
 | lower_threshold | float        | YES  |     | NULL    |                |
 | result_id       | varchar(255) | YES  |     | NULL    |                |
+| telegram_chanel | varchar(255) | YES  |     | NULL    |                |
 +-----------------+--------------+------+-----+---------+----------------+
 ```
 ## FAQ

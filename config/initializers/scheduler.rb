@@ -6,7 +6,7 @@ scheduler = Rufus::Scheduler::singleton
 # test scheduler
 scheduler.in '2s' do
   metricController = MetricController.new()
-  # metricController.get_alert('hourly')
+  metricController.get_alert('daily')
   puts "===================== D - O - N - E ===================="
 end
 
