@@ -12,36 +12,36 @@
 
 ActiveRecord::Schema.define(version: 2018_08_27_072145) do
 
-  create_table "alerts", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "alerts", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.float "value"
     t.boolean "is_upper"
     t.integer "metric_id"
-    t.integer "exclude_status"
+    t.integer "exclude_status", limit: 1
     t.string "date"
   end
 
-  create_table "date_excs", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "date_excs", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "date"
     t.float "value"
     t.float "ratio"
-    t.string "time_unit"
+    t.integer "time_unit", limit: 1
     t.string "redash_id"
     t.text "note"
   end
 
-  create_table "metrics", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "metrics", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "redash_id"
     t.string "redash_title"
     t.string "time_column"
     t.string "value_column"
-    t.string "time_unit"
-    t.string "value_type"
+    t.integer "time_unit", limit: 1
+    t.integer "value_type", limit: 1
     t.string "email"
     t.float "upper_threshold"
     t.float "lower_threshold"

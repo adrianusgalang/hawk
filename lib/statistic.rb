@@ -11,11 +11,11 @@ class Statistic
 
   def self.calculate_alert_graph_data_weekly(alerts)
     result = alerts
-      .order('created_date ASC')
-      .group('created_date')
-      .select("DATE_SUB(created_at, INTERVAL DAYOFWEEK(created_at)-1 DAY) AS created_date, COUNT(id) AS counts")
+      .order('week ASC')
+      .group('week')
+      .select("date(created_at-interval (dayofweek(created_at)+1)%7 day) AS week, count(id) as counts")
     return result.map do |row|
-      {x: "#{row.created_date.day}-#{row.created_date.month}-#{row.created_date.year}", y: row.counts, was_alert: [true, false].sample}
+      {x: "#{row.week.day}-#{row.week.month}-#{row.week.year}", y: row.counts, was_alert: [true, false].sample}
     end
   end
 

@@ -4,12 +4,12 @@ require 'dotenv'
 
 class HawkMain
   def self.compare(data,time_unit,value_column,time_column,redash_id)
-    if time_unit != "hourly"
+    if time_unit != 0 #hourly
       day = 0
       case time_unit
-      when 'daily'
+      when 1 #daily
         day = 28
-      when 'weekly'
+      when 2 #weekly
         day = 28
       end
 
@@ -43,7 +43,7 @@ class HawkMain
 
             value = (data[j][value_column].to_f - data[i][value_column].to_f)/(data[i][value_column].to_f)
             x[countx] = Array.new
-            x[countx][0] = 1/(1+Math.exp(-1*value))
+            x[countx][0] = hitungRaksen(value)
             x[countx][1] = date2
             countx = countx + 1
             break
@@ -67,19 +67,19 @@ class HawkMain
           if date.to_s[0..12] == (date2 - 7).to_s[0..12]
 
             status = false
-            status,value = checkExDate(date,dateExclude,datecount,'hourly')
+            status,value = checkExDate(date,dateExclude,datecount,0) # 0 hourly
             if status == true
               data[j][value_column] = value
             end
             status = false
-            status,value = checkExDate(date2,dateExclude,datecount,'hourly')
+            status,value = checkExDate(date2,dateExclude,datecount,0) # 0 hourly
             if status == true
               data[i][value_column] = value
             end
 
             value = (data[j][value_column].to_f - data[i][value_column].to_f)/(data[i][value_column].to_f)
             x[countx] = Array.new
-            x[countx][0] = 1/(1+Math.exp(-1*value))
+            x[countx][0] = hitungRaksen(value)
             x[countx][1] = date2
             countx = countx + 1
             break
@@ -91,16 +91,16 @@ class HawkMain
   end
 
   def self.checkExDate(date,dateExclude,excludeCount,type)
-    if type != 'hourly'
+    if type != 0 # hourly
       for i in 0..(excludeCount - 1)
 
         date_until = Date.parse dateExclude[i]['date']
         case type
-        when 'daily'
+        when 1 #daily
           date_until = date_until
-        when 'weekly'
+        when 2 #weekly
           date_until = date_until + 7
-        when 'monthly'
+        when 3 #monthly
           date_until = date_until.next_month
         end
 
@@ -160,14 +160,14 @@ class HawkMain
 
   def self.get_value(data,value_column,time_unit,time_column,value_type,metric_id)
     datacount = data.count
-    if time_unit != "hourly"
+    if time_unit != 0 # hourly
       day = 0
       day2 = 0
       case time_unit
-      when 'daily'
+      when 1 #daily
         day = 1
         day2 = 28
-      when 'weekly'
+      when 2 #weekly
         day = 7
         day2 = 28
       end
@@ -199,15 +199,15 @@ class HawkMain
                 data[j][value_column] = value
               end
 
-              if value_type == 'absolute'
+              if value_type == 1 #absolute
                 final_value[value_counter] = Array.new
                 value = (data[i][value_column].to_f - data[j][value_column].to_f)/(data[j][value_column].to_f)
-                final_value[value_counter][0] = 1/(1+Math.exp(-1*value))
+                final_value[value_counter][0] = hitungRaksen(value)
                 final_value[value_counter][1] = date
                 value_counter = value_counter + 1
               else
                 final_value[value_counter] = Array.new
-                final_value[value_counter][0] = data[i][value_column].to_f
+                final_value[value_counter][0] = hitungRaksen(data[i][value_column])
                 final_value[value_counter][1] = date
                 value_counter = value_counter + 1
               end
@@ -236,19 +236,19 @@ class HawkMain
             if date.to_s[0..12] == (date2 + 7).to_s[0..12]
 
               status = false
-              status,value = checkExDate(date2,dateExclude,datecount,'hourly')
+              status,value = checkExDate(date2,dateExclude,datecount,0) #hourly
               if status == true
                 data[j][value_column] = value
               end
-              if value_type == 'absolute'
+              if value_type == 1 #absolute
                 final_value[value_counter] = Array.new
                 value = (data[i][value_column].to_f - data[j][value_column].to_f)/(data[j][value_column].to_f)
-                final_value[value_counter][0] = 1/(1+Math.exp(-1*value))
+                final_value[value_counter][0] = hitungRaksen(value)
                 final_value[value_counter][1] = date
                 value_counter = value_counter + 1
               else
                 final_value[value_counter] = Array.new
-                final_value[value_counter][0] = data[i][value_column].to_f
+                final_value[value_counter][0] = hitungRaksen(data[i][value_column])
                 final_value[value_counter][1] = date
                 value_counter = value_counter + 1
               end
@@ -262,32 +262,32 @@ class HawkMain
   end
 
   def self.calculate_data(data, time_column, value_column, time_unit, value_type,redash_id)
-    if value_type == 'absolute'
+    if value_type == 1 #absolute
       ratio = compare(data,time_unit,value_column,time_column,redash_id)
-    elsif value_type == 'ratio'
+    elsif value_type == 2 #ratio
       temp = Array.new
+      dateExclude = DateExc.where(note:redash_id)
+      datecount = dateExclude.length
       for i in 0..(data.count-1)
-        dateExclude = DateExc.where(note:redash_id)
-        datecount = dateExclude.length
         status = false
         status,value = checkExDate(data[i][time_column],dateExclude,datecount,time_unit)
         if status == true
           temp[i] = Array.new
-          temp[i][0] = value
+          temp[i][0] = hitungRaksen(value)
           temp[i][1] = data[i][time_column]
         else
           temp[i] = Array.new
-          temp[i][0] = data[i][value_column]
+          temp[i][0] = hitungRaksen(data[i][value_column])
           temp[i][1] = data[i][time_column]
         end
       end
       ratio = temp
     end
 
-    if ratio.count > 25 && (time_unit == 'hourly' || time_unit == 'daily')
+    if ratio.count > 25 && (time_unit == 0 || time_unit == 1)
       lower_bound, upper_bound = lower_upper_bound(ratio)
       return lower_bound,upper_bound
-    elsif ratio.count > 5 && (time_unit == 'weekly' || time_unit == 'monthly')
+    elsif ratio.count > 5 && (time_unit == 2 || time_unit == 3)
       lower_bound, upper_bound = lower_upper_bound(ratio)
       return lower_bound,upper_bound
     else
@@ -298,13 +298,13 @@ class HawkMain
   end
 
   def self.calculate_outer_threshold(data, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,query)
-    if value_type == 'absolute'
+    if value_type == 1 #absolute
       ratio = compare(data,time_unit,value_column,time_column,query)
-    elsif value_type == 'ratio'
+    elsif value_type == 2 #ratio
       temp = Array.new
       for i in 0..(data.count-1)
         temp[i] = Array.new
-        temp[i][0] = data[i][value_column]
+        temp[i][0] = hitungRaksen(data[i][value_column])
         temp[i][1] = data[i][time_column]
       end
       ratio = temp
@@ -321,13 +321,13 @@ class HawkMain
   end
 
   def self.median(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,data)
-    if value_type == 'absolute'
+    if value_type == 1 #absolute
       ratio = HawkMain.compare(data,time_unit,value_column,time_column,redash_id)
-    elsif value_type == 'ratio'
+    elsif value_type == 2 #ratio
       temp = Array.new
       for i in 0..(data.count-1)
         temp[i] = Array.new
-        temp[i][0] = data[i][value_column]
+        temp[i][0] = hitungRaksen(data[i][value_column])
         temp[i][1] = data[i][time_column]
       end
       ratio = temp
@@ -348,14 +348,14 @@ class HawkMain
 
     median = ratio.count/2.floor
 
-    if value_type == 'absolute'
+    if value_type == 1 #absolute
         date_compare = ''
-        if time_unit != 'hourly'
+        if time_unit != 0 #hourly
           day = 0
           case time_unit
-          when 'daily'
+          when 1 #daily
             day = 28
-          when 'weekly'
+          when 2 #weekly
             day = 28
           end
 
@@ -381,14 +381,24 @@ class HawkMain
         yT = 0.5
         for i in 0..(data.count - 1)
           if data[i][time_column].to_s[0..12] == date_compare.to_s[0..12]
-            rT = Math.log((1/(ratio[median][0].to_f)) - 1,Math::E) * -1
-            yT = rT * data[i][value_column].to_f + data[i][value_column].to_f
+            yT = -1*hitungInversRaksen(ratio[median][0]) * data[i][value_column].to_f + data[i][value_column].to_f
           end
         end
 
         return ratio[median][0].to_f,yT
     else
-        return ratio[median][0].to_f,ratio[median][0].to_f
+        return ratio[median][0].to_f,hitungInversRaksen(ratio[median][0])
     end
   end
+
+  def self.hitungRaksen(value)
+    return -1 + 2/(1+Math.exp(-1*(value.to_f+1)))
+  end
+
+  def self.hitungInversRaksen(value)
+    temp = ((value.to_f + 1)/(1 - value.to_f))
+    rT = (Math.log(temp,Math::E) - 1) * -1
+    return rT
+  end
+
 end

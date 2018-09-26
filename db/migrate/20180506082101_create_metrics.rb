@@ -1,13 +1,14 @@
 class CreateMetrics < ActiveRecord::Migration[5.2]
   def change
-    create_table :metrics do |t|
+    create_table :metrics, {id: false} do |t|
+      t.integer :id, limit: 4, auto_increment: true, primary_key: true
       t.timestamps
       t.integer :redash_id
       t.string :redash_title
       t.string :time_column
       t.string :value_column
-      t.string :time_unit
-      t.string :value_type
+      t.integer :time_unit, limit: 1
+      t.integer :value_type, limit: 1
       t.string :email
       t.float :upper_threshold
       t.float :lower_threshold

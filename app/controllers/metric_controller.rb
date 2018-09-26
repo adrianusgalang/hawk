@@ -8,7 +8,7 @@ class MetricController < ApplicationController
   $threadLimit = ENV["THREAD_LIMIT"].to_f
 
   def statistic
-    @metric = Metric.where(redash_id: params[:id]).first
+    @metric = Metric.where(id: params[:id]).first
 
     if params[:start]
       start_date = Time.zone.parse(params[:start]).beginning_of_day
@@ -101,12 +101,12 @@ class MetricController < ApplicationController
   end
 
   def edit
-    metric = Metric.where(redash_id: params[:id]).first
+    metric = Metric.where(id: params[:id]).first
     render json: metric.to_json
   end
 
   def update
-    metric = Metric.where(redash_id: params[:id]).first
+    metric = Metric.where(id: params[:id]).first
     metric.update(resource_params)
   end
 
@@ -123,9 +123,9 @@ class MetricController < ApplicationController
 
   # new metrics
   def create
-    metric = Metric.create(resource_params)
+    metric = Metric.create(insert_params)
     create_status = true
-    if Metric.where(redash_id: params[:redash_id]).nil?
+    if Metric.where(id: params[:redash_id]).nil?
       create_status = false
     end
     Thread.new{
@@ -181,8 +181,11 @@ class MetricController < ApplicationController
   end
 
   def resource_params
-    params.require(:metric).permit(:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel)
+    params.require(:metric).permit(:id,:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel)
+  end
 
+  def insert_params
+    params.require(:metric).permit(:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel)
   end
 
   def checkThread()
@@ -193,9 +196,11 @@ class MetricController < ApplicationController
 
   def checkErrorThread()
     puts "-E-r-r-o-r- -C-o-u-n-t- : "<<$threadCount.to_s
-    while $threadCount > $threadLimit
-      sleep(1)
-    end
+  end
+
+  def remoteErrorThread()
+    puts "-R-e-s-e-t- -E-r-r-o-r- : "<<$threadCount.to_s
+    $threadCount = 0
   end
 
   def get_alert(time)
