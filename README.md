@@ -109,13 +109,13 @@ rake db:migrate
 +----------------+--------------+------+-----+---------+----------------+
 | Field          | Type         | Null | Key | Default | Extra          |
 +----------------+--------------+------+-----+---------+----------------+
-| id             | bigint(20)   | NO   | PRI | NULL    | auto_increment |
+| id             | int(11)      | NO   | PRI | NULL    | auto_increment |
 | created_at     | datetime     | NO   |     | NULL    |                |
 | updated_at     | datetime     | NO   |     | NULL    |                |
 | value          | float        | YES  |     | NULL    |                |
 | is_upper       | tinyint(1)   | YES  |     | NULL    |                |
 | metric_id      | int(11)      | YES  |     | NULL    |                |
-| exclude_status | int(11)      | YES  |     | NULL    |                |
+| exclude_status | tinyint(4)   | YES  |     | NULL    |                |
 | date           | varchar(255) | YES  |     | NULL    |                |
 +----------------+--------------+------+-----+---------+----------------+
 ```
@@ -124,21 +124,37 @@ rake db:migrate
 +-----------------+--------------+------+-----+---------+----------------+
 | Field           | Type         | Null | Key | Default | Extra          |
 +-----------------+--------------+------+-----+---------+----------------+
-| id              | bigint(20)   | NO   | PRI | NULL    | auto_increment |
+| id              | int(11)      | NO   | PRI | NULL    | auto_increment |
 | created_at      | datetime     | NO   |     | NULL    |                |
 | updated_at      | datetime     | NO   |     | NULL    |                |
 | redash_id       | int(11)      | YES  |     | NULL    |                |
 | redash_title    | varchar(255) | YES  |     | NULL    |                |
 | time_column     | varchar(255) | YES  |     | NULL    |                |
 | value_column    | varchar(255) | YES  |     | NULL    |                |
-| time_unit       | varchar(255) | YES  |     | NULL    |                |
-| value_type      | varchar(255) | YES  |     | NULL    |                |
+| time_unit       | tinyint(4)   | YES  |     | NULL    |                |
+| value_type      | tinyint(4)   | YES  |     | NULL    |                |
 | email           | varchar(255) | YES  |     | NULL    |                |
 | upper_threshold | float        | YES  |     | NULL    |                |
 | lower_threshold | float        | YES  |     | NULL    |                |
 | result_id       | varchar(255) | YES  |     | NULL    |                |
 | telegram_chanel | varchar(255) | YES  |     | NULL    |                |
 +-----------------+--------------+------+-----+---------+----------------+
+```
+- Date Exclude
+```
++------------+--------------+------+-----+---------+----------------+
+| Field      | Type         | Null | Key | Default | Extra          |
++------------+--------------+------+-----+---------+----------------+
+| id         | int(11)      | NO   | PRI | NULL    | auto_increment |
+| created_at | datetime     | NO   |     | NULL    |                |
+| updated_at | datetime     | NO   |     | NULL    |                |
+| date       | varchar(255) | YES  |     | NULL    |                |
+| value      | float        | YES  |     | NULL    |                |
+| ratio      | float        | YES  |     | NULL    |                |
+| time_unit  | tinyint(4)   | YES  |     | NULL    |                |
+| redash_id  | varchar(255) | YES  |     | NULL    |                |
+| note       | text         | YES  |     | NULL    |                |
++------------+--------------+------+-----+---------+----------------+
 ```
 ## FAQ
 - Can't start server because server already running => remove file server.pids from tmp/pids then Start the server
