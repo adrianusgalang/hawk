@@ -3,6 +3,7 @@ stages:
 - pre-build
 - build
 - deployment
+- migrate
 
 variables:
   VAR_KUBE_CONTEXT: production
@@ -46,3 +47,17 @@ deploy-service:
   when: manual
   variables:
     FILE: service
+
+migrate-run-production:
+  stage: migrate
+  image:
+    name: registry.bukalapak.io/sre/migration:0.0.1
+    entrypoint: [""]
+  variables:
+    RAILS_ENV: production
+    ENV: production
+  script:
+  - envconsul -once -consul=$CONSUL_ADDR -sanitize -upcase -prefix=$CI_PROJECT_NAME migration db:migrate
+  - envconsul -once -consul=$CONSUL_ADDR -sanitize -upcase -prefix=$CI_PROJECT_NAME migration db:migrate:status
+  only:
+  - /^migrate-run-production-.*$/
