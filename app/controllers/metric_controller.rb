@@ -136,8 +136,6 @@ class MetricController < ApplicationController
       value_column = params[:metric][:value_column]
       time_unit = params[:metric][:time_unit]
       value_type = params[:metric][:value_type]
-      # batas_bawah,batas_atas = Redash.set_threshold(query, time_column, value_column, time_unit, value_type, metric.id)
-      # batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id)
       batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id)
       redash_title = Redash.get_redash_title(query)
       if batas_atas != 0 && batas_bawah != 0
@@ -248,7 +246,6 @@ class MetricController < ApplicationController
 
             mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
             mail_job.deliver_now
-            # send_tele('lower',query,value[i][0])
           elsif value[i][0] > upper_threshold
             checkalert = Alert.where(metric_id: id, date: value[i][1])
             checkalert.destroy_all
@@ -275,7 +272,6 @@ class MetricController < ApplicationController
 
             mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
             mail_job.deliver_now
-            # send_tele('upper',query,value[i][0])
           else
             puts value[i][0]
             puts "didalam threshold"

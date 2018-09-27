@@ -19,7 +19,7 @@ build-image:
   tags:
   - build-image
   only:
-  - triggers
+  - /^release-.*$/
   script:
   - export VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -31,7 +31,7 @@ build-image:
   tags:
   - bare-metal
   only:
-  - triggers
+  - /^release-.*$/
   script:
   - export VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
   - kubectl config use-context $VAR_KUBE_CONTEXT
@@ -46,3 +46,5 @@ deploy-service:
   when: manual
   variables:
     FILE: service
+  only:
+  - /^release-.*$/
