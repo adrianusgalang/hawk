@@ -10,11 +10,11 @@ services:
     replica: "1"
   - name: staging
     replica: "1"
-  nodePort: "13000"
+  nodePort: "39710"
   healthz: healthz
   maxMem: "2"
   maxCpu: "2"
-  minMem: "1"
+  minMem: "0.5"
   minCpu: "1"
   limit: false
   timeout: "1"

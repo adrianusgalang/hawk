@@ -5,7 +5,7 @@ stages:
 - deployment
 
 variables:
-  VAR_KUBE_CONTEXT: $ENV
+  VAR_KUBE_CONTEXT: production
 
 test:
   stage: test
@@ -19,7 +19,7 @@ build-image:
   tags:
   - build-image
   only:
-  - triggers
+  - /^deploy-.*$/
   script:
   - export VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -31,11 +31,11 @@ build-image:
   tags:
   - bare-metal
   only:
-  - triggers
+  - /^deploy-.*$/
   script:
   - export VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
   - kubectl config use-context $VAR_KUBE_CONTEXT
-  - make deploy
+  - ENV=production make deploy
 
 deploy:
   <<: *deploy-template

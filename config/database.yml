@@ -39,4 +39,4 @@ production:
   port: <%= ENV['MYSQL_PORT_PROD'] %>
   pool: <%= ENV['MYSQL_POOL_PROD'] %>
   timeout: <%= ENV['MYSQL_TIMEOUT_PROD'] %>
-  database: <%= ENV['MYSQL_DBNAME_TEST'] %>
+  database: <%= ENV['MYSQL_DBNAME_PROD'] %>

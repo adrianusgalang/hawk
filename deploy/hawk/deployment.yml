@@ -51,7 +51,10 @@ spec:
         - -sanitize
         - -upcase
         - -prefix={{.variable.VAR_CONSUL_PREFIX}}
-        - {{.service.name}}
+        - rails
+        - s
+        - -e
+        - production
       - name: consul
         image: registry.bukalapak.io/bukalapak/consul-image:0.2.0
         resources:
