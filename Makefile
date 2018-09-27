@@ -4,7 +4,6 @@ IMAGE = registry.bukalapak.io/bukalapak/hawk/$(svc)
 DIRS  = $(shell cd deploy && ls -d */ | grep -v "_output")
 FILE ?= deployment
 ODIR := deploy/_output
-HAWK_VERSION=201809201528
 
 export VERSION            ?= $(shell git show -q --format=%h)
 export VAR_SERVICES       ?= $(DIRS:/=)
@@ -18,10 +17,6 @@ test:
 
 dep:
 	bundle install
-
-release:
-	git branch release-$(HAWK_VERSION)
-	git push origin -u release-$(HAWK_VERSION)
 
 $(ODIR):
 	@mkdir -p $(ODIR)

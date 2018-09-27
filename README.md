@@ -76,6 +76,22 @@ HAWK would send an alert when there is an outlier detected, i.e. a point that cr
 [sudo] rails s
 ```
 
+### Deployment
+
+#### Gitlab Deployment (Preferred)
+
+- Create release branch with prefix `deploy-` and push it
+  ```
+  date +deploy-%Y%m%d-%H%M%S
+  git checkout -b deploy-20180306-150408
+  git push origin deploy-20180306-150408
+  ```
+
+- Connect to Bukalapak VPN
+- Go to https://gitlab.bukalapak.io/bukalapak/hawk/pipelines
+- Wait until the 'build' stage has been passed
+- Run deployment by clicking the 'Play' (the triangle) button on `Deploy Production` job
+
 ## Database
 
 ### database migration

@@ -16,7 +16,7 @@ development:
   port: <%= ENV['MYSQL_PORT_DEV'] %>
   pool: <%= ENV['MYSQL_POOL_DEV'] %>
   timeout: <%= ENV['MYSQL_TIMEOUT_DEV'] %>
-  database: hawk_dev
+  database: <%= ENV['MYSQL_DBNAME_DEV'] %>
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -29,7 +29,7 @@ test:
   port: <%= ENV['MYSQL_PORT_TEST'] %>
   pool: <%= ENV['MYSQL_POOL_TEST'] %>
   timeout: <%= ENV['MYSQL_TIMEOUT_TEST'] %>
-  database: hawk_test
+  database: <%= ENV['MYSQL_DBNAME_TEST'] %>
 
 production:
   <<: *default
@@ -39,4 +39,4 @@ production:
   port: <%= ENV['MYSQL_PORT_PROD'] %>
   pool: <%= ENV['MYSQL_POOL_PROD'] %>
   timeout: <%= ENV['MYSQL_TIMEOUT_PROD'] %>
-  database: hawk_prod
+  database: <%= ENV['MYSQL_DBNAME_TEST'] %>
