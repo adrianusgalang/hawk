@@ -10,7 +10,9 @@ variables:
 
 test:
   stage: test
-  image: ruby:2.5.1
+  image: ruby:2.4.1
+  only:
+  - /^deploy-.*$/
   script:
   - make dep
 
@@ -57,6 +59,8 @@ migrate-run-production:
     RAILS_ENV: production
     ENV: production
   script:
+  - ln -s $CI_PROJECT_DIR/db/ /app/
+  - cd /app/
   - envconsul -once -consul=$CONSUL_ADDR -sanitize -upcase -prefix=$CI_PROJECT_NAME migration db:migrate
   - envconsul -once -consul=$CONSUL_ADDR -sanitize -upcase -prefix=$CI_PROJECT_NAME migration db:migrate:status
   only:

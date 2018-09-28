@@ -1,5 +1,5 @@
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.5.0/gems/nio4r-2.3.1/ext/nio4r
-/usr/share/rvm/rubies/ruby-2.5.1/bin/ruby -r ./siteconf20180816-23039-1fajnt7.rb extconf.rb
+/usr/share/rvm/rubies/ruby-2.5.1/bin/ruby -r ./siteconf20180928-1309-nihsct.rb extconf.rb
 checking for unistd.h... yes
 checking for sys/select.h... yes
 checking for port_event_t in poll.h... no
@@ -214,4 +214,4 @@ linking shared-object nio4r_ext.so
 
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.5.0/gems/nio4r-2.3.1/ext/nio4r
 make "DESTDIR=" install
-/usr/bin/install -m 0755 nio4r_ext.so ./.gem.20180816-23039-14r5jhh
+/usr/bin/install -m 0755 nio4r_ext.so ./.gem.20180928-1309-l0t1v5

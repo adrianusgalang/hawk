@@ -1,5 +1,5 @@
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.5.0/gems/sqlite3-1.3.13/ext/sqlite3
-/usr/share/rvm/rubies/ruby-2.5.1/bin/ruby -r ./siteconf20180816-23039-zk3w1o.rb extconf.rb
+/usr/share/rvm/rubies/ruby-2.5.1/bin/ruby -r ./siteconf20180928-1309-chlhe9.rb extconf.rb
 /usr/share/rvm/rubies/ruby-2.5.1/lib/ruby/2.5.0/mkmf.rb:1553: warning: Insecure world writable dir /opt in PATH, mode 040777
 checking for sqlite3.h... yes
 checking for pthread_create() in -lpthread... yes
@@ -31,4 +31,4 @@ linking shared-object sqlite3/sqlite3_native.so
 
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.5.0/gems/sqlite3-1.3.13/ext/sqlite3
 make "DESTDIR=" install
-/usr/bin/install -m 0755 sqlite3_native.so ./.gem.20180816-23039-nrt6wx/sqlite3
+/usr/bin/install -m 0755 sqlite3_native.so ./.gem.20180928-1309-tb0z61/sqlite3

@@ -1,5 +1,5 @@
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.5.0/gems/mysql2-0.5.2/ext/mysql2
-/usr/share/rvm/rubies/ruby-2.5.1/bin/ruby -r ./siteconf20180816-23039-mxeuwi.rb extconf.rb
+/usr/share/rvm/rubies/ruby-2.5.1/bin/ruby -r ./siteconf20180928-1309-12bttcj.rb extconf.rb
 checking for rb_absint_size()... yes
 checking for rb_absint_singlebit_p()... yes
 checking for rb_wait_for_single_fd()... yes
@@ -41,4 +41,4 @@ linking shared-object mysql2/mysql2.so
 
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.5.0/gems/mysql2-0.5.2/ext/mysql2
 make "DESTDIR=" install
-/usr/bin/install -m 0755 mysql2.so ./.gem.20180816-23039-1vvxe7r/mysql2
+/usr/bin/install -m 0755 mysql2.so ./.gem.20180928-1309-1ccmnor/mysql2

@@ -1,4 +1,4 @@
-class CreateDateExcs < ActiveRecord::Migration[5.2]
+class CreateDateExcs < ActiveRecord::Migration[5.1]
   def change
     create_table :date_excs, {id: false} do |t|
       t.integer :id, limit: 4, auto_increment: true, primary_key: true

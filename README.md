@@ -28,7 +28,7 @@ HAWK is a system that allows anyone on Bukalapak to do monitoring on their metri
 
 
 ## Dependencies
-- Ruby 2.5.1
+- Ruby 2.4.1
 - mysql 5.7
 - Redash (http://redash.bukalapak.io)
 
