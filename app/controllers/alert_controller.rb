@@ -9,6 +9,9 @@ class AlertController < ApplicationController
       puts alert.metric_id
       alert.to_hash
     end.to_json
+
+    date_now = DateTime.current
+    puts '{"Function":"alert-index", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
 
   def confirmuser
@@ -31,5 +34,8 @@ class AlertController < ApplicationController
     dateExclude.note = metric[0].id
     dateExclude.save
     alert.update(exclude_status: params[:alert][:set_to])
+
+    date_now = DateTime.current
+    puts '{"Function":"confirmuser", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
 end

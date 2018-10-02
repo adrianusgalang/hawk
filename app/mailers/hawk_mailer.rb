@@ -8,5 +8,8 @@ class HawkMailer < ApplicationMailer
     message = value_column.to_s<<" on "<<redash_title.to_s<<" has reached "<<value_alert.to_s<<" while the threshold is between "<<upper_threshold.to_s<<" and "<<lower_threshold.to_s
 
     mail(to: email, subject: "#{title} #{time_schedule}", body: "#{message} . Source : #{source}")
+
+    date_now = DateTime.current
+    puts '{"Function":"send_email", "Date": "'+date_now.to_s+'","To": "'+email.to_s+'", "Status": "ok"}'
   end
 end

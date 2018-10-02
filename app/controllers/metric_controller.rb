@@ -33,6 +33,9 @@ class MetricController < ApplicationController
     graph_data_daily = Statistic.calculate_alert_graph_data_daily(alerts)
     graph_data_weekly = Statistic.calculate_alert_graph_data_weekly(alerts)
 
+    date_now = DateTime.current
+    puts '{"Function":"statistic", "Date": "'+date_now.to_s+'", "Status": "ok"}'
+
     render json: {
           total_alert: total_alert,
           total_upper_alert: total_upper_alert,
@@ -51,6 +54,8 @@ class MetricController < ApplicationController
     render json: @metrics.map do |metric|
       metric.to_hash
     end.to_json
+    date_now = DateTime.current
+    puts '{"Function":"manage", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
 
   def update_all
@@ -68,12 +73,15 @@ class MetricController < ApplicationController
         if batas_atas != 0 && batas_bawah != 0
           r.update(upper_threshold: batas_atas,lower_threshold:batas_bawah)
         elsif
-          puts "warning : data kurang banyak"
+          date_now = DateTime.current
+          puts '{"Function":"update_all", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
         end
         $threadCount = $threadCount - 1
       }
       r.save
     end
+    date_now = DateTime.current
+    puts '{"Function":"update_all", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
 
   # update threshold
@@ -93,21 +101,31 @@ class MetricController < ApplicationController
       if batas_atas != 0 && batas_bawah != 0
         metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title)
       elsif
-        puts "warning : data kurang banyak"
+        date_now = DateTime.current
+        puts '{"Function":"update_threshold", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
       end
       $threadCount = $threadCount - 1
     }
     metric.save
+
+    date_now = DateTime.current
+    puts '{"Function":"update_threshold", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
   end
 
   def edit
     metric = Metric.where(id: params[:id]).first
     render json: metric.to_json
+
+    date_now = DateTime.current
+    puts '{"Function":"edit", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
   end
 
   def update
     metric = Metric.where(id: params[:id]).first
     metric.update(resource_params)
+
+    date_now = DateTime.current
+    puts '{"Function":"update", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
   end
 
   def delete
@@ -115,6 +133,9 @@ class MetricController < ApplicationController
     alert = Alert.where(metric_id: params[:id])
     alert.destroy_all
     metric.delete
+
+    date_now = DateTime.current
+    puts '{"Function":"delete", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
   end
 
   def new
@@ -163,13 +184,16 @@ class MetricController < ApplicationController
         end
 
       elsif
-        puts "warning : data kurang banyak"
+        date_now = DateTime.current
+        puts '{"Function":"create", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
       end
       $threadCount = $threadCount - 1
     }
     status = 'failed'
     if create_status and response
       status = 'ok'
+      date_now = DateTime.current
+      puts '{"Function":"create", "Date": "'+date_now.to_s+'", "Status": "ok"}'
     end
     json_res = metric.to_hash
     json_res['response'] = status
@@ -187,17 +211,21 @@ class MetricController < ApplicationController
   end
 
   def checkThread()
-    while $threadCount > $threadLimit
+    date_now = DateTime.current
+    puts '{"Function":"checkThread", "Date": "'+date_now.to_s+'", "Thread Count": "'+$threadCount.to_s+'"}'
+    while $threadCount >= $threadLimit
       sleep(1)
     end
   end
 
   def checkErrorThread()
-    puts "-E-r-r-o-r- -C-o-u-n-t- : "<<$threadCount.to_s
+    date_now = DateTime.current
+    puts '{"Function":"checkErrorThread", "Date": "'+date_now.to_s+'", "Error Count": "'+$threadCount.to_s+'"}'
   end
 
-  def remoteErrorThread()
-    puts "-R-e-s-e-t- -E-r-r-o-r- : "<<$threadCount.to_s
+  def removeErrorThread()
+    date_now = DateTime.current
+    puts '{"Function":"removeErrorThread", "Date": "'+date_now.to_s+'", "Reset Error": "'+$threadCount.to_s+'"}'
     $threadCount = 0
   end
 
@@ -236,6 +264,10 @@ class MetricController < ApplicationController
             redash_title = redash_t
             lowerorupper = "lower"
             date = DateTime.current
+
+            date_now = DateTime.current
+            puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Lower", "Status": "ok"}'
+
             redash_link = query
             value_column = value_column
             value_alert = value[i][0]
@@ -262,6 +294,10 @@ class MetricController < ApplicationController
             redash_title = redash_t
             lowerorupper = "upper"
             date = DateTime.current
+
+            date_now = DateTime.current
+            puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Upper", "Status": "ok"}'
+
             redash_link = query
             value_column = value_column
             value_alert = value[i][0]
@@ -273,8 +309,9 @@ class MetricController < ApplicationController
             mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
             mail_job.deliver_now
           else
-            puts value[i][0]
-            puts "didalam threshold"
+            # puts value[i][0]
+            date_now = DateTime.current
+            puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Didalam threshold", "Status": "ok"}'
           end
         end
         $threadCount = $threadCount - 1

@@ -17,7 +17,7 @@ end
 
 scheduler.every '3600s' do
   metricController = MetricController.new()
-  metricController.remoteErrorThread()
+  metricController.removeErrorThread()
 end
 
 scheduler.cron '30 * * * *' do
@@ -26,7 +26,7 @@ scheduler.cron '30 * * * *' do
 end
 
 scheduler.cron '0 4 * * *' do
-
+# scheduler.every '30s' do
   metricController = MetricController.new()
   metricController.get_alert(1)
 end

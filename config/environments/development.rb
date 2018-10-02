@@ -80,4 +80,9 @@ Rails.application.configure do
      authentication:       'plain',
      enable_starttls_auto: true
   }
+
+  # config.after_initialize do
+  #   ActiveRecord::Base.logger = Rails.logger.clone
+  #   ActiveRecord::Base.logger.level = Logger::INFO
+  # end
 end
