@@ -1,4 +1,4 @@
-require 'rufus-scheduler'
+require 'rufus/scheduler'
 require 'dotenv'
 
 scheduler = Rufus::Scheduler::singleton
@@ -13,8 +13,6 @@ end
 scheduler.every '60s' do
   metricController = MetricController.new()
   metricController.checkErrorThread()
-  metricController.test_alert(1)
-  metricController.get_alert(1)
 end
 
 scheduler.every '3600s' do
@@ -22,13 +20,12 @@ scheduler.every '3600s' do
   metricController.removeErrorThread()
 end
 
-scheduler.cron '30 * * * *' do
+scheduler.cron '25 * * * *' do
   metricController = MetricController.new()
   metricController.get_alert(0)
 end
 
-scheduler.cron '0 4 * * *' do
-# scheduler.every '30s' do
+scheduler.cron '1 4 * * *' do
   metricController = MetricController.new()
   metricController.get_alert(1)
 end

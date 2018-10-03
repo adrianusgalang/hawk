@@ -12,7 +12,7 @@ test:
   stage: test
   image: ruby:2.4.1
   only:
-  - /^deploy-.*$/
+  - /^deploy-test-.*$/
   script:
   - make dep
 
