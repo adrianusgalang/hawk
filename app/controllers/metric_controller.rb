@@ -229,6 +229,12 @@ class MetricController < ApplicationController
     $threadCount = 0
   end
 
+  def test_alert(time)
+    metrics = Metric.where(time_unit: time)
+    puts "----------------------------------------------"
+    puts metrics.count
+  end
+
   def get_alert(time)
     metrics = Metric.where(time_unit: time)
     metrics.each do |r|

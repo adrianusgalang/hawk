@@ -13,6 +13,8 @@ end
 scheduler.every '60s' do
   metricController = MetricController.new()
   metricController.checkErrorThread()
+  metricController.test_alert(1)
+  metricController.get_alert(1)
 end
 
 scheduler.every '3600s' do

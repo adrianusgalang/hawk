@@ -92,9 +92,22 @@ HAWK would send an alert when there is an outlier detected, i.e. a point that cr
 - Wait until the 'build' stage has been passed
 - Run deployment by clicking the 'Play' (the triangle) button on `Deploy Production` job
 
+#### Gitlab Migration (Preferred)
+
+- Create release branch with prefix `migrate-run-production-` and push it
+  ```
+  date +migrate-run-production-%Y%m%d-%H%M%S
+  git checkout -b migrate-run-production-20180306-150408
+  git push origin migrate-run-production-20180306-150408
+  ```
+
+- Connect to Bukalapak VPN
+- Go to https://gitlab.bukalapak.io/bukalapak/hawk/pipelines
+- Wait until the 'migrate' stage has been passed
+
 ## Database
 
-### database migration
+### Local database migration
 ```
 rake db:migrate
 ```
