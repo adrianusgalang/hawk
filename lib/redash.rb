@@ -20,14 +20,14 @@ class Redash
     return HawkMain.calculate_data(data, time_column, value_column, time_unit, value_type,metric_id)
   end
 
-  def self.get_redash_title(query)
+  def self.get_redash_detail(query)
     url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s
     headers = {
      "Authorization"  => ENV["REDASH_KEY"]
     }
     response = HTTParty.get(url,:headers => headers)
 
-    return response['name']
+    return response['name'],response['schedule'],response['latest_query_data_id'],response['updated_at']
   end
 
   def self.get_csv(query, time_column, value_column, time_unit, value_type,metric_id)
@@ -55,7 +55,7 @@ class Redash
 		status = 0
 		counter = 0
 		while status != 3 && status != 4
-			url = 'https://redash.bukalapak.io/api/jobs/'<<id_query
+			url = 'https://redash.bukalapak.io/api/jobs/'<<id_query.to_s
 			# url = 'https://redash.bukalapak.io/api/jobs/'<<'d7e330da-a40b-4515-9c3b-8cdc721ecb99'
 			response = HTTParty.get(url,:headers => headers)
 			obj = response.parsed_response
@@ -136,4 +136,24 @@ class Redash
     return HawkMain.median(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,data)
   end
 
+  def self.get_redash_result_id(query)
+    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s
+    headers = {
+     "Authorization"  => ENV["REDASH_KEY"]
+    }
+    response = HTTParty.get(url,:headers => headers)
+    return response['latest_query_data_id']
+  end
+
+  def self.refresh(query)
+    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/refresh'
+    headers = {
+     "Authorization"  => ENV["REDASH_KEY"]
+    }
+    response = HTTParty.post(url,:headers => headers)
+    obj = response.parsed_response
+    id_query = obj['job']['id']
+
+    return get_result_id id_query
+  end
 end

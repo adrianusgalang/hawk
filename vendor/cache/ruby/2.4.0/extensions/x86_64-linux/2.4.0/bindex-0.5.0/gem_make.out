@@ -1,5 +1,5 @@
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.4.0/gems/bindex-0.5.0/ext/bindex
-/usr/share/rvm/rubies/ruby-2.4.1/bin/ruby -r ./siteconf20180928-17525-guxinm.rb extconf.rb
+/usr/share/rvm/rubies/ruby-2.4.1/bin/ruby -r ./siteconf20181009-17825-rs3lv9.rb extconf.rb
 creating Makefile
 
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.4.0/gems/bindex-0.5.0/ext/bindex
@@ -12,4 +12,4 @@ linking shared-object bindex/cruby.so
 
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.4.0/gems/bindex-0.5.0/ext/bindex
 make "DESTDIR=" install
-/usr/bin/install -m 0755 cruby.so ./.gem.20180928-17525-1d7h3vi/bindex
+/usr/bin/install -m 0755 cruby.so ./.gem.20181009-17825-xu920m/bindex

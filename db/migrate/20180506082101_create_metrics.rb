@@ -14,6 +14,9 @@ class CreateMetrics < ActiveRecord::Migration[5.1]
       t.float :lower_threshold
       t.string :result_id
       t.string :telegram_chanel
+      t.string :group
+      t.string :next_update
+      t.integer :schedule, limit: 4
     end
   end
 end

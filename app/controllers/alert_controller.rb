@@ -4,13 +4,13 @@ class AlertController < ApplicationController
   skip_before_action :verify_authenticity_token, :only => [:index, :confirmuser]
 
   def index
-    alerts = Alert.select('alerts.*','metrics.redash_id','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on alerts.metric_id = metrics.id').where(exclude_status: 0)
+    alerts = Alert.select('alerts.*','metrics.group','metrics.redash_id','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on alerts.metric_id = metrics.id').where(exclude_status: 0)
     render json: alerts.map do |alert|
       puts alert.metric_id
       alert.to_hash
     end.to_json
 
-    date_now = DateTime.current
+    date_now = DateTime.now
     puts '{"Function":"alert-index", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
 
@@ -31,11 +31,17 @@ class AlertController < ApplicationController
     dateExclude.ratio = ratio
     dateExclude.value = value
     dateExclude.redash_id = redash_id
-    dateExclude.note = metric[0].id
+    dateExclude.metric_id = metric[0].id
     dateExclude.save
     alert.update(exclude_status: params[:alert][:set_to])
+    MetricController.update_threshold_use_param(metric[0].id)
 
-    date_now = DateTime.current
+    date_now = DateTime.now
     puts '{"Function":"confirmuser", "Date": "'+date_now.to_s+'", "Status": "ok"}'
+  end
+
+  def test_tele
+    cortabot = Cortabot.new()
+    cortabot.test_cortabot(params[:chatid])
   end
 end

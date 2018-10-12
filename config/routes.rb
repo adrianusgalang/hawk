@@ -31,6 +31,7 @@ Rails.application.routes.draw do
     collection do
       get :index
       post :confirmuser
+      get :test_tele
     end
   end
 

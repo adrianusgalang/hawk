@@ -16,7 +16,7 @@ class HawkMain
       datacount = data.count
       countx = 0
       x = Array.new
-      dateExclude = DateExc.where(note:redash_id)
+      dateExclude = DateExc.where(metric_id:redash_id)
       datecount = dateExclude.count
       for i in 0..(datacount-1)
         str = data[i][time_column]
@@ -55,7 +55,7 @@ class HawkMain
       datacount = data.count
       countx = 0
       x = Array.new
-      dateExclude = DateExc.where(note:redash_id)
+      dateExclude = DateExc.where(metric_id:redash_id)
       datecount = dateExclude.count
       for i in 0..(datacount-1)
         str = data[i][time_column]
@@ -173,7 +173,7 @@ class HawkMain
       end
       value_counter = 0
       final_value = Array.new
-      dateExclude = DateExc.where(note:metric_id)
+      dateExclude = DateExc.where(metric_id:metric_id)
       datecount = dateExclude.count
       for i in 0..(datacount-1)
         str = data[i][time_column]
@@ -220,7 +220,7 @@ class HawkMain
     else
       value_counter = 0
       final_value = Array.new
-      dateExclude = DateExc.where(note:metric_id)
+      dateExclude = DateExc.where(metric_id:metric_id)
       datecount = dateExclude.count
       for i in 0..(datacount-1)
         str = data[i][time_column]
@@ -266,7 +266,7 @@ class HawkMain
       ratio = compare(data,time_unit,value_column,time_column,redash_id)
     elsif value_type == 2 #ratio
       temp = Array.new
-      dateExclude = DateExc.where(note:redash_id)
+      dateExclude = DateExc.where(metric_id:redash_id)
       datecount = dateExclude.length
       for i in 0..(data.count-1)
         status = false
@@ -359,26 +359,14 @@ class HawkMain
             day = 28
           end
 
-          for i in 0..(ratio.count-1)
-            date2 = ratio[i][1]
-            date1 = Date.parse date
-            if date1 == (date2 + day)
-              date_compare = date2
-              break
-            end
-          end
+          date1 = Date.parse date
+          date_compare = date1 - day
         else
-          for i in 0..(ratio.count-1)
-            date2 = ratio[i][1]
-            date1 = DateTime.parse date
-            if date1.to_s[0..12] == (date2 + 7).to_s[0..12]
-              date_compare = date2
-              break
-            end
-          end
+          date1 = DateTime.parse date
+          date_compare = date1 - 7
         end
 
-        yT = 0.5
+        yT = 0.5555555
         for i in 0..(data.count - 1)
           if data[i][time_column].to_s[0..12] == date_compare.to_s[0..12]
             yT = -1*hitungInversRaksen(ratio[median][0]) * data[i][value_column].to_f + data[i][value_column].to_f
@@ -401,4 +389,20 @@ class HawkMain
     return rT
   end
 
+  def self.hitungInvers(value)
+    temp = ((value.to_f + 1)/(1 - value.to_f))
+    rT = (Math.log(temp,Math::E) - 1)
+    return rT
+  end
+
+  def self.hitungIncrease(value)
+    temp = ((value.to_f + 1)/(1 - value.to_f))
+    rT = (Math.log(temp,Math::E) - 1)
+    rT = rT.round(8)
+    if rT < 0
+      return "decrease",-100*rT
+    else
+      return "increase",100*rT
+    end
+  end
 end

@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(version: 2018_08_27_072145) do
     t.float "ratio"
     t.integer "time_unit", limit: 1
     t.string "redash_id"
+    t.integer "metric_id"
     t.text "note"
   end
 
@@ -47,6 +48,9 @@ ActiveRecord::Schema.define(version: 2018_08_27_072145) do
     t.float "lower_threshold"
     t.string "result_id"
     t.string "telegram_chanel"
+    t.string "group"
+    t.string "next_update"
+    t.integer "schedule"
   end
 
 end

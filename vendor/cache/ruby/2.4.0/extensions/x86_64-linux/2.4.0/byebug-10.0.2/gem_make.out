@@ -1,5 +1,5 @@
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.4.0/gems/byebug-10.0.2/ext/byebug
-/usr/share/rvm/rubies/ruby-2.4.1/bin/ruby -r ./siteconf20180928-17525-31xkl.rb extconf.rb
+/usr/share/rvm/rubies/ruby-2.4.1/bin/ruby -r ./siteconf20181009-17825-1okig19.rb extconf.rb
 creating Makefile
 
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.4.0/gems/byebug-10.0.2/ext/byebug
@@ -16,4 +16,4 @@ linking shared-object byebug/byebug.so
 
 current directory: /home/adrianus/Documents/hawk/hawk/vendor/cache/ruby/2.4.0/gems/byebug-10.0.2/ext/byebug
 make "DESTDIR=" install
-/usr/bin/install -m 0755 byebug.so ./.gem.20180928-17525-h0aazc/byebug
+/usr/bin/install -m 0755 byebug.so ./.gem.20181009-17825-1hfrt58/byebug

@@ -8,6 +8,7 @@ class CreateDateExcs < ActiveRecord::Migration[5.1]
       t.float :ratio
       t.integer :time_unit, limit: 1
       t.string :redash_id
+      t.integer :metric_id
       t.text :note
     end
   end
