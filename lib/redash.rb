@@ -27,7 +27,7 @@ class Redash
     }
     response = HTTParty.get(url,:headers => headers)
 
-    return response['name'],response['schedule'],response['latest_query_data_id'],response['updated_at']
+    return response['name'],response['latest_query_data_id'],response['updated_at']
   end
 
   def self.get_csv(query, time_column, value_column, time_unit, value_type,metric_id)
