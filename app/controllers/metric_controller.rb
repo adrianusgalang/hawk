@@ -296,7 +296,7 @@ class MetricController < ApplicationController
             cortabot = Cortabot.new()
             redash_title = redash_t
             lowerorupper = "lower"
-            date = DateTime.now
+            date = DateTime.now + 7.hours
 
             date_now = DateTime.now
             puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Lower", "Status": "ok"}'
@@ -326,7 +326,7 @@ class MetricController < ApplicationController
             cortabot = Cortabot.new()
             redash_title = redash_t
             lowerorupper = "upper"
-            date = DateTime.now
+            date = DateTime.now + 7.hours
 
             date_now = DateTime.now
             puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Upper", "Status": "ok"}'

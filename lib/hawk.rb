@@ -398,7 +398,7 @@ class HawkMain
   def self.hitungIncrease(value)
     temp = ((value.to_f + 1)/(1 - value.to_f))
     rT = (Math.log(temp,Math::E) - 1)
-    rT = rT.round(8)
+    rT = rT.round(4)
     if rT < 0
       return "decrease",-100*rT
     else
