@@ -74,7 +74,7 @@ class MetricController < ApplicationController
         redash_schedule = getRedashSchedule(time_unit)
         redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
         if batas_atas != 0 && batas_bawah != 0
-          r.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:redash_title.split("_")[0].downcase,next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
+          r.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
         elsif
           date_now = DateTime.now
           puts '{"Function":"update_all", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
@@ -104,7 +104,7 @@ class MetricController < ApplicationController
       redash_schedule = getRedashSchedule(time_unit)
       redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
       if batas_atas != 0 && batas_bawah != 0
-        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:redash_title.split("_")[0].downcase,next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
+        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
       elsif
         date_now = DateTime.now
         puts '{"Function":"update_threshold", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
@@ -131,7 +131,7 @@ class MetricController < ApplicationController
       redash_schedule = getRedashSchedule(time_unit)
       redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
       if batas_atas != 0 && batas_bawah != 0
-        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:redash_title.split("_")[0].downcase,next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
+        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
       elsif
         date_now = DateTime.now
         puts '{"Function":"update_threshold", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
@@ -193,7 +193,7 @@ class MetricController < ApplicationController
       redash_schedule = getRedashSchedule(time_unit)
       redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
       if batas_atas != 0 && batas_bawah != 0
-        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:redash_title.split("_")[0].downcase,next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
+        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
         data = Redash.get_outer_threshold(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas)
 
         for i in 0..(data.count - 1)
@@ -367,7 +367,7 @@ class MetricController < ApplicationController
           redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(metric.redash_id)
           redash_schedule = getRedashSchedule(metric.time_unit)
           redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
-          metric.update(redash_title:redash_title,group:redash_title.split("_")[0].downcase,next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
+          metric.update(redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
           get_alert(metric.id)
           $threadCount = $threadCount - 1
         }
@@ -383,6 +383,24 @@ class MetricController < ApplicationController
     elsif time_unit == 2
       return 3600*24*7
     end
+  end
+
+  def getRedashTitle(redash_title)
+    redash_title = redash_title.to_s
+    str_len = redash_title.length
+
+    if (redash_title.split("_")[0]).length != str_len
+      title = redash_title.split("_")[0]
+    elsif (redash_title.split("-")[0]).length != str_len
+      title = redash_title.split("-")[0]
+    elsif (redash_title.split("]")[0]).length != str_len
+      title = (redash_title.split("]")[0]).split("[")[1]
+    else
+      title = redash_title
+    end
+    title = title.strip
+    title = title.downcase
+    return title
   end
 
 end
