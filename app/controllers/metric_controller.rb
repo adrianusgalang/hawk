@@ -275,70 +275,72 @@ class MetricController < ApplicationController
         time_unit = r.time_unit
         upper_threshold = r.upper_threshold
         lower_threshold = r.lower_threshold
-        telegram_chanel = r.telegram_chanel || 557559054
+        telegram_chanel = r.telegram_chanel || -1001189953846
         redash_t = r.redash_title
         email_to = r.email
         value_type = r.value_type
         value = Redash.get_result(query,value_column,time_unit,time_column,value_type,id)
         for i in 0..(value.count-1)
           if value[i][0] < lower_threshold
-            checkalert = Alert.where(metric_id: id, date: value[i][1])
-            checkalert.destroy_all
+            if isNotSend(value[i][0],id,value[i][1])
+              checkalert = Alert.where(metric_id: id, date: value[i][1])
+              checkalert.destroy_all
 
-            alerts = Alert.new
-            alerts.value = value[i][0]
-            alerts.is_upper = false
-            alerts.metric_id = id
-            alerts.exclude_status = 0
-            alerts.date = value[i][1]
-            alerts.save
+              alerts = Alert.new
+              alerts.value = value[i][0]
+              alerts.is_upper = false
+              alerts.metric_id = id
+              alerts.exclude_status = 0
+              alerts.date = value[i][1]
+              alerts.save
 
-            cortabot = Cortabot.new()
-            redash_title = redash_t
-            lowerorupper = "lower"
-            date = DateTime.now + 7.hours
+              cortabot = Cortabot.new()
+              redash_title = redash_t
+              lowerorupper = "lower"
+              lowerorhigher = "lower"
 
-            date_now = DateTime.now
-            puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Lower", "Status": "ok"}'
+              date_now = DateTime.now
+              puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Lower", "Status": "ok"}'
 
-            redash_link = query
-            value_column = value_column
-            value_alert = value[i][0]
-            upper_threshold = upper_threshold
-            lower_threshold = lower_threshold
-            telegram_chanel_id = telegram_chanel
-            cortabot.send_cortabot(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit)
-
+              redash_link = query
+              value_column = value_column
+              value_alert = value[i][0]
+              upper_threshold = upper_threshold
+              lower_threshold = lower_threshold
+              telegram_chanel_id = telegram_chanel
+              cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher)
+            end
             # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
             # mail_job.deliver_now
           elsif value[i][0] > upper_threshold
-            checkalert = Alert.where(metric_id: id, date: value[i][1])
-            checkalert.destroy_all
+            if isNotSend(value[i][0],id,value[i][1])
+              checkalert = Alert.where(metric_id: id, date: value[i][1])
+              checkalert.destroy_all
 
-            alerts = Alert.new
-            alerts.value = value[i][0]
-            alerts.is_upper = true
-            alerts.metric_id = id
-            alerts.exclude_status = 0
-            alerts.date = value[i][1]
-            alerts.save
+              alerts = Alert.new
+              alerts.value = value[i][0]
+              alerts.is_upper = true
+              alerts.metric_id = id
+              alerts.exclude_status = 0
+              alerts.date = value[i][1]
+              alerts.save
 
-            cortabot = Cortabot.new()
-            redash_title = redash_t
-            lowerorupper = "upper"
-            date = DateTime.now + 7.hours
+              cortabot = Cortabot.new()
+              redash_title = redash_t
+              lowerorupper = "upper"
+              lowerorhigher = "higher"
 
-            date_now = DateTime.now
-            puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Upper", "Status": "ok"}'
+              date_now = DateTime.now
+              puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Upper", "Status": "ok"}'
 
-            redash_link = query
-            value_column = value_column
-            value_alert = value[i][0]
-            upper_threshold = upper_threshold
-            lower_threshold = lower_threshold
-            telegram_chanel_id = telegram_chanel
-            cortabot.send_cortabot(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit)
-
+              redash_link = query
+              value_column = value_column
+              value_alert = value[i][0]
+              upper_threshold = upper_threshold
+              lower_threshold = lower_threshold
+              telegram_chanel_id = telegram_chanel
+              cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher)
+            end
             # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
             # mail_job.deliver_now
           else
@@ -401,6 +403,18 @@ class MetricController < ApplicationController
     title = title.strip
     title = title.downcase
     return title
+  end
+
+  def isNotSend(value,metric_id,date)
+    metric = Metric.where(id: metric_id).first
+    key = value.to_s<<"|"<<metric_id.to_s<<"|"<<date.to_s
+    sleep(rand(0..60))
+    if metric.key == key
+      return false
+    else
+      metric.update(key: key)
+      return true
+    end
   end
 
 end

@@ -51,6 +51,7 @@ ActiveRecord::Schema.define(version: 2018_08_27_072145) do
     t.string "group"
     t.string "next_update"
     t.integer "schedule"
+    t.string "key"
   end
 
 end

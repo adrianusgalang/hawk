@@ -17,6 +17,7 @@ class CreateMetrics < ActiveRecord::Migration[5.1]
       t.string :group
       t.string :next_update
       t.integer :schedule, limit: 4
+      t.string :key
     end
   end
 end
