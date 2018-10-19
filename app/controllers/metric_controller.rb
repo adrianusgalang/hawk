@@ -59,6 +59,7 @@ class MetricController < ApplicationController
   end
 
   def update_all
+    isfinish = 0
     metrics = Metric.all
     metrics.each do |r|
       checkThread()
@@ -79,9 +80,13 @@ class MetricController < ApplicationController
           date_now = DateTime.now
           puts '{"Function":"update_all", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
         end
+        isfinish = 1
         $threadCount = $threadCount - 1
       }
       r.save
+    end
+    while isfinish == 0
+      sleep(1)
     end
     date_now = DateTime.now
     puts '{"Function":"update_all", "Date": "'+date_now.to_s+'", "Status": "ok"}'
@@ -89,6 +94,7 @@ class MetricController < ApplicationController
 
   # update threshold
   def update_threshold
+    isfinish = 0
     metric = Metric.where(id: params[:id]).first
     Thread.new{
       checkThread()
@@ -105,6 +111,7 @@ class MetricController < ApplicationController
       redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
       if batas_atas != 0 && batas_bawah != 0
         metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
+        isfinish = 1
       elsif
         date_now = DateTime.now
         puts '{"Function":"update_threshold", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
@@ -112,7 +119,9 @@ class MetricController < ApplicationController
       $threadCount = $threadCount - 1
     }
     metric.save
-
+    while isfinish == 0
+      sleep(1)
+    end
     date_now = DateTime.now
     puts '{"Function":"update_threshold", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
   end
@@ -175,6 +184,7 @@ class MetricController < ApplicationController
 
   # new metrics
   def create
+    isfinish = 0
     metric = Metric.create(insert_params)
     create_status = true
     if Metric.where(id: params[:redash_id]).nil?
@@ -215,10 +225,12 @@ class MetricController < ApplicationController
           alerts.date = data[i][1]
           alerts.save
         end
-
+        isfinish = 1
       elsif
         date_now = DateTime.now
         puts '{"Function":"create", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
+        status = 'failed'
+        isfinish = 2
       end
       $threadCount = $threadCount - 1
     }
@@ -229,9 +241,18 @@ class MetricController < ApplicationController
       puts '{"Function":"create", "Date": "'+date_now.to_s+'", "Status": "ok"}'
     end
     json_res = metric.to_hash
-    json_res['response'] = status
 
-    metric.save
+    while isfinish == 0
+      sleep(1)
+    end
+    if isfinish == 1
+      metric.save
+      json_res['response'] = "ok"
+    end
+    if isfinish == 2
+      metric.delete
+      json_res['response'] = "fail"
+    end
     render json: json_res
   end
 
