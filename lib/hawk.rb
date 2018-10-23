@@ -379,7 +379,7 @@ class HawkMain
           total = 0
           banyak = 0
           for i in 0..(data.count - 1)
-            total = total + data[i][value_column]
+            total = total + data[i][value_column].to_f
             banyak = banyak + 1
           end
           yT = total/banyak
