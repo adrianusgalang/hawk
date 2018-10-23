@@ -4,7 +4,7 @@ class DateExcludeController < ApplicationController
   skip_before_action :verify_authenticity_token, :only => [:index, :removedateexclude]
 
   def index
-    dateexcs = DateExc.select('date_excs.*','metrics.redash_id','metrics.group','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on date_excs.metric_id = metrics.id')
+    dateexcs = DateExc.select('date_excs.*','metrics.redash_id','metrics.group','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on date_excs.metric_id = metrics.id').order(date: :desc)
 		render json: dateexcs.map do |dateexc|
 			dateexc.to_hash
 		end.to_json

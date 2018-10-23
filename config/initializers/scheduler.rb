@@ -25,7 +25,7 @@ scheduler.every '3600s' do
   metricController.removeErrorThread()
 end
 
-scheduler.cron '* * * * 0' do
+scheduler.cron '0 0 * * 0' do
   metricController = MetricController.new()
   metricController.update_all
 end

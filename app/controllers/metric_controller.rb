@@ -427,15 +427,17 @@ class MetricController < ApplicationController
   end
 
   def isNotSend(value,metric_id,date)
-    metric = Metric.where(id: metric_id).first
     key = value.to_s<<"|"<<metric_id.to_s<<"|"<<date.to_s
+
     sleep(rand(0..60))
-    if metric.key == key
-      return false
-    else
-      metric.update(key: key)
+    if ($redis.get(key)).nil?
+      $redis.set(key,key)
+      $redis.expire(key,5.minute.to_i)
       return true
+    else
+      return false
     end
+
   end
 
 end

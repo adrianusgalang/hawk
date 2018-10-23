@@ -367,12 +367,23 @@ class HawkMain
         end
 
         yT = 0.5555555
+        status = 0
         for i in 0..(data.count - 1)
           if data[i][time_column].to_s[0..12] == date_compare.to_s[0..12]
+            status = 1
             yT = -1*hitungInversRaksen(ratio[median][0]) * data[i][value_column].to_f + data[i][value_column].to_f
           end
         end
 
+        if status == 0
+          total = 0
+          banyak = 0
+          for i in 0..(data.count - 1)
+            total = total + data[i][value_column]
+            banyak = banyak + 1
+          end
+          yT = total/banyak
+        end
         return ratio[median][0].to_f,yT
     else
         return ratio[median][0].to_f,hitungInversRaksen(ratio[median][0])

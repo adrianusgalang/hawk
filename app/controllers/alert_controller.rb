@@ -4,7 +4,7 @@ class AlertController < ApplicationController
   skip_before_action :verify_authenticity_token, :only => [:index, :confirmuser]
 
   def index
-    alerts = Alert.select('alerts.*','metrics.group','metrics.redash_id','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on alerts.metric_id = metrics.id').where(exclude_status: 0)
+    alerts = Alert.select('alerts.*','metrics.group','metrics.redash_id','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on alerts.metric_id = metrics.id').where(exclude_status: 0).order(date: :desc)
     render json: alerts.map do |alert|
       puts alert.metric_id
       alert.to_hash

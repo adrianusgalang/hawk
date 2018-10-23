@@ -24,6 +24,11 @@ gem 'mysql2', '~> 0.5.1'
 gem 'dotenv-rails'
 gem 'will_paginate'
 
+gem 'redis'
+gem 'redis-namespace'
+gem 'redis-rails'
+gem 'redis-rack-cache'
+
 # gem "whenever", require: false
 gem 'rufus-scheduler'
 # Use CoffeeScript for .coffee assets and views
