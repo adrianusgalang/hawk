@@ -40,10 +40,10 @@ class MetricController < ApplicationController
           total_alert: total_alert,
           total_upper_alert: total_upper_alert,
           total_lower_alert: total_lower_alert,
-          maximum_value: maximum_value,
-          average_upper_value: average_upper_value,
-          minimum_value: minimum_value,
-          average_lower_value: average_lower_value,
+          maximum_value: HawkMain.hitungInvers(maximum_value).to_s[0..8],
+          average_upper_value: HawkMain.hitungInvers(average_upper_value).to_s[0..8],
+          minimum_value: HawkMain.hitungInvers(minimum_value).to_s[0..8],
+          average_lower_value: HawkMain.hitungInvers(average_lower_value).to_s[0..8],
           graph_data_daily: graph_data_daily,
           graph_data_weekly: graph_data_weekly
         }.to_json
@@ -51,6 +51,12 @@ class MetricController < ApplicationController
 
   def manage
     @metrics = Metric.all
+
+    @metrics.each do |r|
+      r.upper_threshold = HawkMain.hitungInvers(r.upper_threshold).to_s[0..8]
+      r.lower_threshold = HawkMain.hitungInvers(r.lower_threshold).to_s[0..8]
+    end
+
     render json: @metrics.map do |metric|
       metric.to_hash
     end.to_json
@@ -429,7 +435,6 @@ class MetricController < ApplicationController
   def isNotSend(value,metric_id,date)
     key = value.to_s<<"|"<<metric_id.to_s<<"|"<<date.to_s
 
-    sleep(rand(0..60))
     if ($redis.get(key)).nil?
       $redis.set(key,key)
       $redis.expire(key,5.minute.to_i)

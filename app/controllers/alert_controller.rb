@@ -5,8 +5,12 @@ class AlertController < ApplicationController
 
   def index
     alerts = Alert.select('alerts.*','metrics.group','metrics.redash_id','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on alerts.metric_id = metrics.id').where(exclude_status: 0).order(date: :desc)
+
+    alerts.each do |r|
+      r.value = HawkMain.hitungInvers(r.value).to_s[0..8]
+    end
+
     render json: alerts.map do |alert|
-      puts alert.metric_id
       alert.to_hash
     end.to_json
 

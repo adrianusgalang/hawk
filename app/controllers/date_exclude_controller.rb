@@ -5,7 +5,12 @@ class DateExcludeController < ApplicationController
 
   def index
     dateexcs = DateExc.select('date_excs.*','metrics.redash_id','metrics.group','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on date_excs.metric_id = metrics.id').order(date: :desc)
-		render json: dateexcs.map do |dateexc|
+
+    dateexcs.each do |r|
+      r.ratio = HawkMain.hitungInvers(r.ratio).to_s[0..8]
+    end
+
+    render json: dateexcs.map do |dateexc|
 			dateexc.to_hash
 		end.to_json
 

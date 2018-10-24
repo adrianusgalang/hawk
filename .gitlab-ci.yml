@@ -4,6 +4,7 @@ stages:
 - build
 - deployment
 - migrate
+- post-deployment
 
 variables:
   VAR_KUBE_CONTEXT: production
@@ -49,6 +50,41 @@ deploy-service:
   when: manual
   variables:
     FILE: service
+
+notify-done:
+  stage: post-deployment
+  when: on_success
+  image: appropriate/curl
+  allow_failure: true
+  before_script:
+    - "apk --update add --no-cache git"
+  script:
+    - curl -XGET "192.241.135.40:15474/notify_done?service=hawk&branch=$CI_COMMIT_REF_NAME&deployer=$DEPLOYER&roles=$ENV"
+  only:
+    - triggers
+
+notify-failed:
+  stage: post-deployment
+  when: on_failure
+  image: appropriate/curl
+  allow_failure: true
+  only:
+    - triggers
+  before_script:
+    - "apk --update add --no-cache git"
+  script:
+    - curl -XGET "192.241.135.40:15474/notify_failed?service=hawk&branch=$CI_COMMIT_REF_NAME&deployer=$DEPLOYER&roles=$ENV"
+
+notify-start:
+  stage: test
+  image: appropriate/curl
+  allow_failure: true
+  before_script:
+    - "apk --update add --no-cache git"
+  script:
+    - curl -XGET "192.241.135.40:15474/notify_start?service=hawk&branch=$CI_COMMIT_REF_NAME&deployer=$DEPLOYER&roles=$ENV"
+  only:
+    - triggers
 
 migrate-run-production:
   stage: migrate
