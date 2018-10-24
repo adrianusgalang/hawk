@@ -7,22 +7,11 @@ class Cortabot
     title = redash_title.to_s
     source = "https://redash.bukalapak.io/queries/"<<redash_link.to_s
 
-    # message = "<code>"<<value_column.to_s<<"</code> is <b>"<<lowerorhigher.to_s<<"</b> than threshold.\n\n"<<"The "<<status_uol.to_s<<" threshold is "<<value_alert.to_s<<".\n"<<"The current value "<<increase.to_s<<" "<<value_increase.to_s[0..6]<<"% from CC days ago and DD times relative to the threshold."
-    # if status_uol.to_s == "lower"
-    #   message = "<code>"<<value_column.to_s<<"</code> is <b>"<<lowerorhigher.to_s<<"</b> than threshold.\n\n"<<"The "<<status_uol.to_s<<" threshold is "<<value_alert.to_s<<".\n"<<"The current value increase/decrease BB% from CC days ago and DD times relative to the threshold."
-    # else
-    #   message = "<code>"<<value_column.to_s<<"</code> on <code>"<<redash_title.to_s<<"</code> is <b>"<<lowerorhigher.to_s<<"</b> <code>"<<HawkMain.hitungInvers(value_alert).to_s[0..6]<<"</code> than <b>"<<status_uol.to_s<<"</b> threshold <code>"<<HawkMain.hitungInvers(upper_threshold).to_s[0..6]<<"</code>. "
-    # end
-
     increase,value_increase = HawkMain.hitungIncrease(value_alert)
     if status_uol.to_s == "lower"
-      puts value_alert
-      puts lower_threshold
       ratio_relative = (((value_alert/lower_threshold)) * 100).round(2)
       thresholdd = ((HawkMain.hitungInvers(lower_threshold).abs)*100).round(2)
     else
-      puts value_alert
-      puts lower_threshold
       ratio_relative = (((value_alert/upper_threshold)) * 100).round(2)
       thresholdd = ((HawkMain.hitungInvers(upper_threshold).abs)*100).round(2)
     end
@@ -37,9 +26,6 @@ class Cortabot
     end
 
     url = 'http://'<<ENV["TELE_URL"]<<':'<<ENV["TELE_PORT"]<<'/cdbpx?title='<<title.titleize<<"&time="<<time_schedule.to_s<<'&message='<<message.to_s<<'&source='<<source<<'&id='<<id.to_s<<'&token='<<ENV["TOKEN_TELEGRAM_HAWKBOT"]
-    puts "-----------------------------"
-    puts url
-    puts "-----------------------------"
     puts '{"Function":"send_cortabot", "Date": "'+time_schedule.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
     HTTParty.get(URI.encode(url))
   end
