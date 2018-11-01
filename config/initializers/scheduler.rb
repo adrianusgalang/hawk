@@ -14,12 +14,9 @@ scheduler.every '60s' do
   metricController = MetricController.new()
   metricController.checkMetric()
   metricController.checkErrorThread()
+  metricController.checkDeadSchedule()
 end
 
-# scheduler.every '60s' do
-#   metricController = MetricController.new()
-# end
-#
 scheduler.every '3600s' do
   metricController = MetricController.new()
   metricController.removeErrorThread()

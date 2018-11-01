@@ -185,33 +185,45 @@ class HawkMain
         end
         date_now = date_now - day
         if date >= date_now && date < date_until
-          for j in 0..(datacount-1)
-            str2 = data[j][time_column]
-            date2 = Date.parse str2
-            if day2 == 0
-              date2 = date2.next_month
-            end
-            if date == (date2 + day2)
-
-              status = false
-              status,value = checkExDate(date2,dateExclude,datecount,time_unit)
-              if status == true
-                data[j][value_column] = value
+          if value_type == 3
+            final_value[value_counter] = Array.new
+            final_value[value_counter][0] = data[i][value_column]
+            final_value[value_counter][1] = date
+            value_counter = value_counter + 1
+          else
+            for j in 0..(datacount-1)
+              str2 = data[j][time_column]
+              date2 = Date.parse str2
+              if day2 == 0
+                date2 = date2.next_month
               end
+              if date == (date2 + day2)
 
-              if value_type == 1 #absolute
-                final_value[value_counter] = Array.new
-                value = (data[i][value_column].to_f - data[j][value_column].to_f)/(data[j][value_column].to_f)
-                final_value[value_counter][0] = hitungRaksen(value)
-                final_value[value_counter][1] = date
-                value_counter = value_counter + 1
-              else
-                final_value[value_counter] = Array.new
-                final_value[value_counter][0] = hitungRaksen(data[i][value_column])
-                final_value[value_counter][1] = date
-                value_counter = value_counter + 1
+                status = false
+                status,value = checkExDate(date2,dateExclude,datecount,time_unit)
+                if status == true
+                  data[j][value_column] = value
+                end
+
+                if value_type == 1 #absolute
+                  final_value[value_counter] = Array.new
+                  value = (data[i][value_column].to_f - data[j][value_column].to_f)/(data[j][value_column].to_f)
+                  final_value[value_counter][0] = hitungRaksen(value)
+                  final_value[value_counter][1] = date
+                  value_counter = value_counter + 1
+                else #value_type == 2
+                  final_value[value_counter] = Array.new
+                  final_value[value_counter][0] = hitungRaksen(data[i][value_column])
+                  final_value[value_counter][1] = date
+                  value_counter = value_counter + 1
+                # else
+                #   final_value[value_counter] = Array.new
+                #   final_value[value_counter][0] = data[i][value_column]
+                #   final_value[value_counter][1] = date
+                #   value_counter = value_counter + 1
+                end
+                break
               end
-              break
             end
           end
         end
@@ -228,31 +240,43 @@ class HawkMain
         date_now = DateTime.current
         date_now = date_now + 5.hours
         if date >= date_now && date < date_now + 1.hours
-          for j in 0..(datacount-1)
-            str2 = data[j][time_column]
-            date2 = DateTime.parse str2
-            # tanggal tidak masuk perhitungan di cek disini
-            status = 0
-            if date.to_s[0..12] == (date2 + 7).to_s[0..12]
+          if value_type == 3
+            final_value[value_counter] = Array.new
+            final_value[value_counter][0] = data[i][value_column]
+            final_value[value_counter][1] = date
+            value_counter = value_counter + 1
+          else
+            for j in 0..(datacount-1)
+              str2 = data[j][time_column]
+              date2 = DateTime.parse str2
+              # tanggal tidak masuk perhitungan di cek disini
+              status = 0
+              if date.to_s[0..12] == (date2 + 7).to_s[0..12]
 
-              status = false
-              status,value = checkExDate(date2,dateExclude,datecount,0) #hourly
-              if status == true
-                data[j][value_column] = value
+                status = false
+                status,value = checkExDate(date2,dateExclude,datecount,0) #hourly
+                if status == true
+                  data[j][value_column] = value
+                end
+                if value_type == 1 #absolute
+                  final_value[value_counter] = Array.new
+                  value = (data[i][value_column].to_f - data[j][value_column].to_f)/(data[j][value_column].to_f)
+                  final_value[value_counter][0] = hitungRaksen(value)
+                  final_value[value_counter][1] = date
+                  value_counter = value_counter + 1
+                else #value_type == 2
+                  final_value[value_counter] = Array.new
+                  final_value[value_counter][0] = hitungRaksen(data[i][value_column])
+                  final_value[value_counter][1] = date
+                  value_counter = value_counter + 1
+                # else
+                #   final_value[value_counter] = Array.new
+                #   final_value[value_counter][0] = data[i][value_column]
+                #   final_value[value_counter][1] = date
+                #   value_counter = value_counter + 1
+                end
+                break
               end
-              if value_type == 1 #absolute
-                final_value[value_counter] = Array.new
-                value = (data[i][value_column].to_f - data[j][value_column].to_f)/(data[j][value_column].to_f)
-                final_value[value_counter][0] = hitungRaksen(value)
-                final_value[value_counter][1] = date
-                value_counter = value_counter + 1
-              else
-                final_value[value_counter] = Array.new
-                final_value[value_counter][0] = hitungRaksen(data[i][value_column])
-                final_value[value_counter][1] = date
-                value_counter = value_counter + 1
-              end
-              break
             end
           end
         end
@@ -401,9 +425,19 @@ class HawkMain
   end
 
   def self.hitungInvers(value)
-    temp = ((value.to_f + 1)/(1 - value.to_f))
-    rT = (Math.log(temp,Math::E) - 1)
-    return rT
+    if value <= 1 && value >= 0
+      if value == 1
+        value = 0.99999999
+      end
+      if value == 0
+        value = 0.00000001
+      end
+      temp = ((value.to_f + 1)/(1 - value.to_f))
+      rT = (Math.log(temp,Math::E) - 1)
+      return rT
+    else
+      return value
+    end
   end
 
   def self.hitungIncrease(value)
