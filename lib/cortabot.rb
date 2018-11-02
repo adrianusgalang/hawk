@@ -4,8 +4,7 @@ require 'date'
 
 class Cortabot
   def send_cortabot(redash_title,status_uol,time_schedule,redash_link,value_column,value_alert,upper_threshold,lower_threshold,id,time_unit,lowerorhigher)
-    puts "masuk send cortabot 1"
-    title = "Test From Local "<<redash_title.to_s
+    title = redash_title.to_s
     source = "https://redash.bukalapak.io/queries/"<<redash_link.to_s
 
     increase,value_increase = HawkMain.hitungIncrease(value_alert)
@@ -32,7 +31,7 @@ class Cortabot
   end
 
   def send_cortabot_manual(redash_title,status_uol,time_schedule,redash_link,value_column,value_alert,upper_threshold,lower_threshold,id,time_unit,lowerorhigher)
-    title = "Test From Local "<<redash_title.to_s
+    title = redash_title.to_s
     source = "https://redash.bukalapak.io/queries/"<<redash_link.to_s
 
     if status_uol.to_s == "lower"
