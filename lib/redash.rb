@@ -3,6 +3,7 @@ require 'json'
 require 'date'
 require 'dotenv'
 require 'csv'
+require 'set'
 
 class Redash
   def self.set_threshold(query, time_column, value_column, time_unit, value_type,metric_id)
@@ -45,6 +46,36 @@ class Redash
       end
     end
 
+    return HawkMain.calculate_data(data, time_column, value_column, time_unit, value_type, metric_id)
+  end
+
+  def self.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric_id, dimension, dimension_column)
+    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/results.csv'
+    headers = {
+     "Authorization"  => ENV["REDASH_KEY"]
+    }
+    response = HTTParty.get(url,:headers => headers)
+    dimension_position = 0
+    counter = 0
+    for i in 1..(response.count-1)
+      for j in 0..(response[0].count-1)
+        if response[0][j] == dimension_column
+          dimension_position = j
+        end
+      end
+    end
+
+    data = {}
+    counter = 0
+    for i in 1..(response.count-1)
+      if response[i][dimension_position] == dimension
+        data[counter] = {}
+        for j in 0..(response[0].count-1)
+          data[counter][response[0][j]] = response[i][j]
+        end
+        counter = counter + 1
+      end
+    end
     return HawkMain.calculate_data(data, time_column, value_column, time_unit, value_type, metric_id)
   end
 
@@ -93,6 +124,38 @@ class Redash
       data[i-1] = {}
       for j in 0..(response[0].count-1)
         data[i-1][response[0][j]] = response[i][j]
+      end
+    end
+
+    return HawkMain.get_value(data,value_column,time_unit,time_column,value_type,metric_id)
+  end
+
+  def self.get_result_dimension(query,value_column,time_unit,time_column,value_type,metric_id,dimension_column,dimension)
+    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/results.csv'
+    headers = {
+     "Authorization"  => ENV["REDASH_KEY"]
+    }
+    response = HTTParty.get(url,:headers => headers)
+
+    dimension_position = 0
+    counter = 0
+    for i in 1..(response.count-1)
+      for j in 0..(response[0].count-1)
+        if response[0][j] == dimension_column
+          dimension_position = j
+        end
+      end
+    end
+
+    data = {}
+    counter = 0
+    for i in 1..(response.count-1)
+      if response[i][dimension_position] == dimension
+        data[counter] = {}
+        for j in 0..(response[0].count-1)
+          data[counter][response[0][j]] = response[i][j]
+        end
+        counter = counter + 1
       end
     end
 
@@ -156,4 +219,33 @@ class Redash
 
     return get_result_id id_query
   end
+
+  def self.get_dimension(redash_id,dimension_column)
+    url = 'https://redash.bukalapak.io/api/queries/'<<redash_id.to_s<<'/results.csv'
+    headers = {
+      "Authorization"  => ENV["REDASH_KEY"]
+    }
+    response = HTTParty.get(url,:headers => headers)
+
+    data = {}
+    counter = 0
+    for i in 1..(response.count-1)
+      for j in 0..(response[0].count-1)
+        if response[0][j] == dimension_column
+          status = 0
+          for k in 0..counter
+            if data[k] == response[i][j]
+              status = 1
+            end
+          end
+          if status == 0
+            data[counter] = response[i][j]
+            counter = counter + 1
+          end
+        end
+      end
+    end
+    return data
+  end
+
 end

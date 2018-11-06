@@ -4,7 +4,7 @@ class DateExcludeController < ApplicationController
   skip_before_action :verify_authenticity_token, :only => [:index, :removedateexclude]
 
   def index
-    dateexcs = DateExc.select('date_excs.*','metrics.value_type','metrics.redash_id','metrics.group','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on date_excs.metric_id = metrics.id').order(date: :desc)
+    dateexcs = DateExc.select('date_excs.*','metrics.value_type','metrics.redash_id','metrics.dimension','metrics.group','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on date_excs.metric_id = metrics.id').order(date: :desc)
 
     dateexcs.each do |r|
       if r.value_type != 3
@@ -21,6 +21,9 @@ class DateExcludeController < ApplicationController
   end
 
   def removedateexclude
+    cortabot = Cortabot.new()
+    cortabot.hawk_loging("remove exclude",params[:date][:id])
+
     dateexcs = DateExc.where(id: params[:date][:id]).first
     metric = dateexcs.metric_id
     alert = Alert.where(date: dateexcs.date, metric_id: dateexcs.metric_id, exclude_status: 1)

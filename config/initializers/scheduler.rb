@@ -10,22 +10,25 @@ scheduler.in '2s' do
   puts "===================== D - O - N - E ===================="
 end
 
+# --------------------------------
 scheduler.every '60s' do
   metricController = MetricController.new()
   metricController.checkMetric()
   metricController.checkErrorThread()
   metricController.checkDeadSchedule()
 end
+#
+# scheduler.every '3600s' do
+#   metricController = MetricController.new()
+#   metricController.removeErrorThread()
+# end
+#
+# scheduler.cron '0 0 * * 0' do
+#   metricController = MetricController.new()
+#   metricController.update_all
+# end
+# --------------------------------
 
-scheduler.every '3600s' do
-  metricController = MetricController.new()
-  metricController.removeErrorThread()
-end
-
-scheduler.cron '0 0 * * 0' do
-  metricController = MetricController.new()
-  metricController.update_all
-end
 #
 # scheduler.cron '1 4 * * *' do
 #   metricController = MetricController.new()

@@ -4,7 +4,7 @@ class AlertController < ApplicationController
   skip_before_action :verify_authenticity_token, :only => [:index, :confirmuser]
 
   def index
-    alerts = Alert.select('alerts.*','metrics.value_type','metrics.group','metrics.redash_id','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on alerts.metric_id = metrics.id').where(exclude_status: 0).order(date: :desc)
+    alerts = Alert.select('alerts.*','metrics.value_type','metrics.group','metrics.dimension','metrics.redash_id','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on alerts.metric_id = metrics.id').where(exclude_status: 0).order(date: :desc)
 
     alerts.each do |r|
       if r.value_type != 3
@@ -21,6 +21,9 @@ class AlertController < ApplicationController
   end
 
   def confirmuser
+    cortabot = Cortabot.new()
+    cortabot.hawk_loging("add date exclude",params[:alert][:alert_id])
+
     alert = Alert.where(id: params[:alert][:alert_id])
     metric = Metric.where(id: alert[0].metric_id)
     redash_id = metric[0].redash_id

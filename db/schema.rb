@@ -41,6 +41,8 @@ ActiveRecord::Schema.define(version: 2018_08_27_072145) do
     t.string "redash_title"
     t.string "time_column"
     t.string "value_column"
+    t.string "dimension_column"
+    t.string "dimension"
     t.integer "time_unit", limit: 1
     t.integer "value_type", limit: 1
     t.string "email"
@@ -51,7 +53,6 @@ ActiveRecord::Schema.define(version: 2018_08_27_072145) do
     t.string "group"
     t.string "next_update"
     t.integer "schedule"
-    t.string "key"
   end
 
 end

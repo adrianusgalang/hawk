@@ -425,18 +425,22 @@ class HawkMain
   end
 
   def self.hitungInvers(value)
-    if value <= 1 && value >= 0
-      if value == 1
-        value = 0.99999999
+    if value != nil
+      if value <= 1 && value >= 0
+        if value == 1
+          value = 0.99999999
+        end
+        if value == 0
+          value = 0.00000001
+        end
+        temp = ((value.to_f + 1)/(1 - value.to_f))
+        rT = (Math.log(temp,Math::E) - 1)
+        return rT
+      else
+        return value
       end
-      if value == 0
-        value = 0.00000001
-      end
-      temp = ((value.to_f + 1)/(1 - value.to_f))
-      rT = (Math.log(temp,Math::E) - 1)
-      return rT
     else
-      return value
+      return nil
     end
   end
 
