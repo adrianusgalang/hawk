@@ -118,7 +118,6 @@ class Redash
      "Authorization"  => ENV["REDASH_KEY"]
     }
     response = HTTParty.get(url,:headers => headers)
-
     data = {}
     for i in 1..(response.count-1)
       data[i-1] = {}
@@ -181,6 +180,47 @@ class Redash
     return HawkMain.calculate_outer_threshold(data, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,query)
   end
 
+  def self.get_outer_threshold_dimension(query, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,dimension,dimension_column)
+    puts value_type
+    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/results.csv'
+    headers = {
+     "Authorization"  => ENV["REDASH_KEY"]
+    }
+    response = HTTParty.get(url,:headers => headers)
+
+    dimension_position = 0
+    counter = 0
+    for i in 1..(response.count-1)
+      for j in 0..(response[0].count-1)
+        if response[0][j] == dimension_column
+          dimension_position = j
+        end
+      end
+    end
+
+    data = {}
+    counter = 0
+    for i in 1..(response.count-1)
+      if response[i][dimension_position] == dimension
+        data[counter] = {}
+        for j in 0..(response[0].count-1)
+          data[counter][response[0][j]] = response[i][j]
+        end
+        counter = counter + 1
+      end
+    end
+
+    # data = {}
+    # for i in 1..(response.count-1)
+    #   data[i-1] = {}
+    #   for j in 0..(response[0].count-1)
+    #     data[i-1][response[0][j]] = response[i][j]
+    #   end
+    # end
+
+    return HawkMain.calculate_outer_threshold(data, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,query)
+  end
+
   def self.calculate_median(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type)
     url = 'https://redash.bukalapak.io/api/queries/'<<redash_id.to_s<<'/results.csv'
     headers = {
@@ -195,6 +235,46 @@ class Redash
         data[i-1][response[0][j]] = response[i][j]
       end
     end
+
+    return HawkMain.median(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,data)
+  end
+
+  def self.calculate_median_dimension(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,dimension,dimension_column)
+    url = 'https://redash.bukalapak.io/api/queries/'<<redash_id.to_s<<'/results.csv'
+    headers = {
+     "Authorization"  => ENV["REDASH_KEY"]
+    }
+    response = HTTParty.get(url,:headers => headers)
+
+    dimension_position = 0
+    counter = 0
+    for i in 1..(response.count-1)
+      for j in 0..(response[0].count-1)
+        if response[0][j] == dimension_column
+          dimension_position = j
+        end
+      end
+    end
+
+    data = {}
+    counter = 0
+    for i in 1..(response.count-1)
+      if response[i][dimension_position] == dimension
+        data[counter] = {}
+        for j in 0..(response[0].count-1)
+          data[counter][response[0][j]] = response[i][j]
+        end
+        counter = counter + 1
+      end
+    end
+
+    # data = {}
+    # for i in 1..(response.count-1)
+    #   data[i-1] = {}
+    #   for j in 0..(response[0].count-1)
+    #     data[i-1][response[0][j]] = response[i][j]
+    #   end
+    # end
 
     return HawkMain.median(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,data)
   end

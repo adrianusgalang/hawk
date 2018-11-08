@@ -31,8 +31,14 @@ class AlertController < ApplicationController
     value_column = metric[0].value_column
     time_unit = metric[0].time_unit
     value_type = metric[0].value_type
+    dimension_column = metric[0].dimension_column
+    dimension = metric[0].dimension
 
-    ratio,value = Redash.calculate_median(redash_id,alert[0].date,time_unit,time_column,value_column,time_unit,value_type)
+    if dimension_column != nil
+      ratio,value = Redash.calculate_median_dimension(redash_id,alert[0].date,time_unit,time_column,value_column,time_unit,value_type,dimension, dimension_column)
+    else
+      ratio,value = Redash.calculate_median(redash_id,alert[0].date,time_unit,time_column,value_column,time_unit,value_type)
+    end
 
     dateExclude = DateExc.new
     dateExclude.date = alert[0].date

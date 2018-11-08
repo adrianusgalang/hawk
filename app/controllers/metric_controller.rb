@@ -118,9 +118,7 @@ class MetricController < ApplicationController
       }
       r.save
     end
-    while isfinish == 0
-      sleep(1)
-    end
+
     date_now = DateTime.now
     puts '{"Function":"update_all", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
@@ -164,9 +162,7 @@ class MetricController < ApplicationController
       $threadCount = $threadCount - 1
     }
     metric.save
-    while isfinish == 0
-      sleep(1)
-    end
+
     date_now = DateTime.now
     puts '{"Function":"update_threshold", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
   end
@@ -270,10 +266,15 @@ class MetricController < ApplicationController
       redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query)
       redash_schedule = getRedashSchedule(time_unit)
       redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+
       if batas_atas != 0 && batas_bawah != 0 || value_type == 3
         metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
         if value_type != 3
-          data = Redash.get_outer_threshold(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas)
+          if dimension != "null"
+            data = Redash.get_outer_threshold_dimension(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas, dimension, params[:metric][:dimension_column])
+          else
+            data = Redash.get_outer_threshold(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas)
+          end
           for i in 0..(data.count - 1)
 
             alerts = Alert.new
@@ -312,17 +313,10 @@ class MetricController < ApplicationController
     end
     json_res = metric.to_hash
 
-    while $threadCount != 0
-      puts isfinish
-      sleep(1)
-    end
+    json_res['response'] = "fail"
     if isfinish == 1
       metric.save
       json_res['response'] = "ok"
-    end
-    if isfinish == 2
-      metric.delete
-      json_res['response'] = "fail"
     end
     return json_res
   end
@@ -337,14 +331,13 @@ class MetricController < ApplicationController
       dimensions = Redash.get_dimension(params[:metric][:redash_id],params[:metric][:dimension_column])
       json_res = []
       for i in 0..(dimensions.count)
-      # for i in 0..2
-        params[:metric][:dimension] = dimensions[i]
-        metric = Metric.create(insert_params_dimension)
-        create_status = true
-        if Metric.where(id: params[:redash_id]).nil?
-          create_status = false
-        end
-        json_res = metric_create(metric,params,create_status,isfinish,dimensions[i])
+          params[:metric][:dimension] = dimensions[i]
+          metric = Metric.create(insert_params_dimension)
+          create_status = true
+          if Metric.where(id: params[:redash_id]).nil?
+            create_status = false
+          end
+          json_res = metric_create(metric,params,create_status,isfinish,dimensions[i])
       end
       json_res['response'] = "ok"
       render json: json_res
@@ -410,7 +403,6 @@ class MetricController < ApplicationController
         value_type = r.value_type
         dimension_column = r.dimension_column
         dimension = r.dimension
-
         if dimension_column != nil
           value = Redash.get_result_dimension(query,value_column,time_unit,time_column,value_type,id,dimension_column,dimension)
         else
