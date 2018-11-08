@@ -22,7 +22,8 @@ class Cortabot
     end
 
     if time_unit == 0
-      time_schedule = (time_schedule).to_s[0..9]<<" "<<(time_schedule).to_s[11..18]
+      # time_schedule = (time_schedule).to_s[0..9]<<" "<<(time_schedule).to_s[11..18]
+      time_schedule = indo_time(time_schedule.to_s)
       message = "<code>"<<value_column.to_s<<"</code> "<<message_dimension<<" is <b>"<<lowerorhigher.to_s<<"</b> than threshold. "<<"The <b>"<<status_uol.to_s<<"</b> threshold is <code>"<<thresholdd.to_s[0..6]<<"%</code>."<<" Current value <code>"<<increase.to_s<<" "<<(value_increase.round(2)).to_s[0..6]<<"% </code> from 7 days ago and <code>"<<ratio_relative.to_s[0..6]<<"%</code> relative to the <b>"<<status_uol.to_s<<"</b> threshold."
     elsif time_unit == 1
       message = "<code>"<<value_column.to_s<<"</code> "<<message_dimension<<" is <b>"<<lowerorhigher.to_s<<"</b> than threshold. "<<"The <b>"<<status_uol.to_s<<"</b> threshold is <code>"<<thresholdd.to_s[0..6]<<"%</code>."<<" Current value <code>"<<increase.to_s<<" "<<(value_increase.round(2)).to_s[0..6]<<"% </code> from 28 days ago and <code>"<<ratio_relative.to_s[0..6]<<"%</code> relative to the <b>"<<status_uol.to_s<<"</b> threshold."
@@ -55,7 +56,8 @@ class Cortabot
     end
 
     if time_unit == 0
-      time_schedule = (time_schedule).to_s[0..9]<<" "<<(time_schedule).to_s[11..18]
+      # time_schedule = (time_schedule).to_s[0..9]<<" "<<(time_schedule).to_s[11..18]
+      time_schedule = indo_time(time_schedule.to_s)
     end
     message = "<code>"<<value_column.to_s<<"</code> "<<message_dimension<<" is <b>"<<lowerorhigher.to_s<<"</b> than threshold. "<<"The <b>"<<status_uol.to_s<<"</b> threshold is <code>"<<thresholdd.to_s[0..6]<<"</code>."<<" Current value is <code>"<<value_alert.to_s<<"</code>"
 
@@ -64,7 +66,7 @@ class Cortabot
     else
       url = 'http://'<<ENV["TELE_URL"]<<':'<<ENV["TELE_PORT"]<<'/cdbpx?title='<<title.titleize<<"&time="<<time_schedule.to_s<<'&message='<<message.to_s<<'&source='<<source<<'&id='<<id.to_s<<'&token='<<ENV["TOKEN_TELEGRAM_HAWKBOT"]
     end
-    puts '{"Function":"send_cortabot", "Date": "'+time_schedule.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
+    puts '{"Function":"send_cortabot_manual", "Date": "'+time_schedule.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
     HTTParty.get(URI.encode(url))
   end
 
@@ -72,7 +74,7 @@ class Cortabot
     url = 'http://'<<ENV["TELE_URL"]<<':'<<ENV["TELE_PORT"]<<'/cdbpx?message=Test_Message'<<'&id='<<id.to_s<<'&token='<<ENV["TOKEN_TELEGRAM_HAWKBOT"]
     puts url
     date_now = DateTime.current
-    puts '{"Function":"send_cortabot", "Date": "'+date_now.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
+    puts '{"Function":"send_cortabot_test", "Date": "'+date_now.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
     HTTParty.get(URI.encode(url))
   end
 
@@ -82,5 +84,16 @@ class Cortabot
     date_now = DateTime.current
     puts '{"Function":"send_cortabot_loging", "Date": "'+date_now.to_s+'", "To": "-279091412", "Status": "ok"}'
     HTTParty.get(URI.encode(url))
+  end
+
+  def indo_time(time)
+    time_schedule = time.split('+')[0]
+    if time.split('+')[1] != nil
+      timezone = ((time.split('+')[1]).split(':')[0]).to_f
+      time_schedule = DateTime.parse time_schedule
+      time_schedule = time_schedule - timezone.hours
+    end
+    time_schedule = (time_schedule).to_s[0..9]<<" "<<(time_schedule).to_s[11..18]
+    return time_schedule
   end
 end
