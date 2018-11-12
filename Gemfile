@@ -28,7 +28,7 @@ gem 'redis'
 gem 'redis-namespace'
 gem 'redis-rails'
 gem 'redis-rack-cache'
-
+gem 'prometheus-client'
 # gem "whenever", require: false
 gem 'rufus-scheduler'
 # Use CoffeeScript for .coffee assets and views
