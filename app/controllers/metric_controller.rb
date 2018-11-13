@@ -324,7 +324,7 @@ class MetricController < ApplicationController
   # new metrics
   def create
     cortabot = Cortabot.new()
-    cortabot.hawk_loging("add metric",params[:email])
+    cortabot.hawk_loging("add metric",params[:metric][:email])
 
     isfinish = 0
     if params[:metric][:dimension_column] != ""
