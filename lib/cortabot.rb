@@ -3,9 +3,12 @@ require 'dotenv'
 require 'date'
 
 class Cortabot
-  def send_cortabot(redash_title,status_uol,time_schedule,redash_link,value_column,value_alert,upper_threshold,lower_threshold,id,time_unit,lowerorhigher,dimension)
+  include Prometheus::Controller
+
+  def send_cortabot(redash_title,status_uol,time_schedule,redash_link,value_column,value_alert,upper_threshold,lower_threshold,id,time_unit,lowerorhigher,dimension,redash_used)
+    SEND_CORTABOT_COUNTER.set({route: :send_cortabot_counter}, 1)
     title = redash_title.to_s
-    source = "https://redash.bukalapak.io/queries/"<<redash_link.to_s
+    source = "https://" << get_redash_used(redash_used) << ".bukalapak.io/queries/" << redash_link.to_s
 
     increase,value_increase = HawkMain.hitungIncrease(value_alert)
     if status_uol.to_s == "lower"
@@ -18,31 +21,32 @@ class Cortabot
 
     message_dimension =  ""
     if dimension != ""
-      message_dimension =  " on dimension <code>"<<dimension<<"</code> "
+      message_dimension =  " on dimension <code>" << dimension << "</code> "
     end
 
     if time_unit == 0
       # time_schedule = (time_schedule).to_s[0..9]<<" "<<(time_schedule).to_s[11..18]
       time_schedule = indo_time(time_schedule.to_s)
-      message = "<code>"<<value_column.to_s<<"</code> "<<message_dimension<<" is <b>"<<lowerorhigher.to_s<<"</b> than threshold. "<<"The <b>"<<status_uol.to_s<<"</b> threshold is <code>"<<thresholdd.to_s[0..6]<<"%</code>."<<" Current value <code>"<<increase.to_s<<" "<<(value_increase.round(2)).to_s[0..6]<<"% </code> from 7 days ago and <code>"<<ratio_relative.to_s[0..6]<<"%</code> relative to the <b>"<<status_uol.to_s<<"</b> threshold."
+      message = "<code>" << value_column.to_s << "</code> " << message_dimension << " is <b>" << lowerorhigher.to_s << "</b> than threshold. " << "The <b>" << status_uol.to_s << "</b> threshold is <code>" << thresholdd.to_s[0..6] << "%</code>. Current value <code>" << increase.to_s << " " << (value_increase.round(2)).to_s[0..6] << "% </code> from 7 days ago and <code>" << ratio_relative.to_s[0..6] << "%</code> relative to the <b>" << status_uol.to_s << "</b> threshold."
     elsif time_unit == 1
-      message = "<code>"<<value_column.to_s<<"</code> "<<message_dimension<<" is <b>"<<lowerorhigher.to_s<<"</b> than threshold. "<<"The <b>"<<status_uol.to_s<<"</b> threshold is <code>"<<thresholdd.to_s[0..6]<<"%</code>."<<" Current value <code>"<<increase.to_s<<" "<<(value_increase.round(2)).to_s[0..6]<<"% </code> from 28 days ago and <code>"<<ratio_relative.to_s[0..6]<<"%</code> relative to the <b>"<<status_uol.to_s<<"</b> threshold."
+      message = "<code>"  <<  value_column.to_s << "</code> " << message_dimension << " is <b>" << lowerorhigher.to_s << "</b> than threshold. " << "The <b>" << status_uol.to_s << "</b> threshold is <code>" << thresholdd.to_s[0..6] << "%</code>." << " Current value <code>" << increase.to_s << " " << (value_increase.round(2)).to_s[0..6] << "% </code> from 28 days ago and <code>" << ratio_relative.to_s[0..6] << "%</code> relative to the <b>" << status_uol.to_s << "</b> threshold."
     elsif time_unit == 2
-      message = "<code>"<<value_column.to_s<<"</code> "<<message_dimension<<" is <b>"<<lowerorhigher.to_s<<"</b> than threshold. "<<"The <b>"<<status_uol.to_s<<"</b> threshold is <code>"<<thresholdd.to_s[0..6]<<"%</code>."<<" Current value <code>"<<increase.to_s<<" "<<(value_increase.round(2)).to_s[0..6]<<"% </code> from 4 weeks ago and <code>"<<ratio_relative.to_s[0..6]<<"%</code> relative to the <b>"<<status_uol.to_s<<"</b> threshold."
+      message = "<code>" << value_column.to_s << "</code> " << message_dimension << " is <b>" << lowerorhigher.to_s << "</b> than threshold. " << "The <b>" << status_uol.to_s << "</b> threshold is <code>" << thresholdd.to_s[0..6] << "%</code>." << " Current value <code>" << increase.to_s << " " << (value_increase.round(2)).to_s[0..6] << "% </code> from 4 weeks ago and <code>" << ratio_relative.to_s[0..6] << "%</code> relative to the <b>" << status_uol.to_s << "</b> threshold."
     end
 
     if dimension != ""
-      url = 'http://'<<ENV["TELE_URL"]<<':'<<ENV["TELE_PORT"]<<'/cdbpx?title='<<title.titleize<<"&dimension=<code>"<<dimension.to_s<<"</code>&time="<<time_schedule.to_s<<'&message='<<message.to_s<<'&source='<<source<<'&id='<<id.to_s<<'&token='<<ENV["TOKEN_TELEGRAM_HAWKBOT"]
+      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&dimension=<code>" << dimension.to_s << "</code>&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
     else
-      url = 'http://'<<ENV["TELE_URL"]<<':'<<ENV["TELE_PORT"]<<'/cdbpx?title='<<title.titleize<<"&time="<<time_schedule.to_s<<'&message='<<message.to_s<<'&source='<<source<<'&id='<<id.to_s<<'&token='<<ENV["TOKEN_TELEGRAM_HAWKBOT"]
+      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
     end
     puts '{"Function":"send_cortabot", "Date": "'+time_schedule.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
     HTTParty.get(URI.encode(url))
   end
 
-  def send_cortabot_manual(redash_title,status_uol,time_schedule,redash_link,value_column,value_alert,upper_threshold,lower_threshold,id,time_unit,lowerorhigher,dimension)
+  def send_cortabot_manual(redash_title,status_uol,time_schedule,redash_link,value_column,value_alert,upper_threshold,lower_threshold,id,time_unit,lowerorhigher,dimension,redash_used)
+    SEND_CORTABOT_COUNTER.set({route: :send_cortabot_counter}, 1)
     title = redash_title.to_s
-    source = "https://redash.bukalapak.io/queries/"<<redash_link.to_s
+    source = "https://" << get_redash_used(redash_used) << ".bukalapak.io/queries/" << redash_link.to_s
 
     if status_uol.to_s == "lower"
       thresholdd = lower_threshold
@@ -52,26 +56,26 @@ class Cortabot
 
     message_dimension =  ""
     if dimension != ""
-      message_dimension =  " on dimension <code>"<<dimension<<"</code> "
+      message_dimension =  " on dimension <code>" << dimension << "</code> "
     end
 
     if time_unit == 0
-      # time_schedule = (time_schedule).to_s[0..9]<<" "<<(time_schedule).to_s[11..18]
+      # time_schedule = (time_schedule).to_s[0..9] << " " << (time_schedule).to_s[11..18]
       time_schedule = indo_time(time_schedule.to_s)
     end
-    message = "<code>"<<value_column.to_s<<"</code> "<<message_dimension<<" is <b>"<<lowerorhigher.to_s<<"</b> than threshold. "<<"The <b>"<<status_uol.to_s<<"</b> threshold is <code>"<<thresholdd.to_s[0..6]<<"</code>."<<" Current value is <code>"<<value_alert.to_s<<"</code>"
+    message = "<code>" << value_column.to_s << "</code> " << message_dimension << " is <b>" << lowerorhigher.to_s << "</b> than threshold. " << "The <b>" << status_uol.to_s << "</b> threshold is <code>" << thresholdd.to_s[0..6] << "</code>." << " Current value is <code>" << value_alert.to_s << "</code>"
 
     if dimension != ""
-      url = 'http://'<<ENV["TELE_URL"]<<':'<<ENV["TELE_PORT"]<<'/cdbpx?title='<<title.titleize<<"&dimension=<code>"<<dimension.to_s<<"</code>&time="<<time_schedule.to_s<<'&message='<<message.to_s<<'&source='<<source<<'&id='<<id.to_s<<'&token='<<ENV["TOKEN_TELEGRAM_HAWKBOT"]
+      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&dimension=<code>" << dimension.to_s << "</code>&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
     else
-      url = 'http://'<<ENV["TELE_URL"]<<':'<<ENV["TELE_PORT"]<<'/cdbpx?title='<<title.titleize<<"&time="<<time_schedule.to_s<<'&message='<<message.to_s<<'&source='<<source<<'&id='<<id.to_s<<'&token='<<ENV["TOKEN_TELEGRAM_HAWKBOT"]
+      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
     end
     puts '{"Function":"send_cortabot_manual", "Date": "'+time_schedule.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
     HTTParty.get(URI.encode(url))
   end
 
   def test_cortabot(id)
-    url = 'http://'<<ENV["TELE_URL"]<<':'<<ENV["TELE_PORT"]<<'/cdbpx?message=Test_Message'<<'&id='<<id.to_s<<'&token='<<ENV["TOKEN_TELEGRAM_HAWKBOT"]
+    url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?message=Test_Message' << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
     puts url
     date_now = DateTime.current
     puts '{"Function":"send_cortabot_test", "Date": "'+date_now.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
@@ -79,7 +83,7 @@ class Cortabot
   end
 
   def hawk_loging(action,note)
-    url = 'http://'<<ENV["TELE_URL"]<<':'<<ENV["TELE_PORT"]<<'/cdbpx?message=Loging&action='<<action.to_s<<'&note='<<note.to_s<<'&id=-279091412&token='<<ENV["TOKEN_TELEGRAM_HAWKBOT"]
+    url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?message=Loging&action=' << action.to_s << '&note=' << note.to_s << '&id=-279091412&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
     puts url
     date_now = DateTime.current
     puts '{"Function":"send_cortabot_loging", "Date": "'+date_now.to_s+'", "To": "-279091412", "Status": "ok"}'
@@ -93,7 +97,26 @@ class Cortabot
       time_schedule = DateTime.parse time_schedule
       time_schedule = time_schedule - timezone.hours
     end
-    time_schedule = (time_schedule).to_s[0..9]<<" "<<(time_schedule).to_s[11..18]
+    time_schedule = (time_schedule).to_s[0..9] << " " << (time_schedule).to_s[11..18]
     return time_schedule
+  end
+
+  def get_redash_used(redash_used)
+    case redash_used
+    when 0
+      return 'redash'
+    when 1
+      return 'cs-redash'
+    when 2
+      return 'dg-redash'
+    when 3
+      return 'rev-redash'
+    when 4
+      return 'supply-redash'
+    when 5
+      return 'trust-redash'
+    when 6
+      return 'adhoc-redash'
+    end
   end
 end

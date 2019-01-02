@@ -6,6 +6,7 @@ class MetricController < ApplicationController
   skip_before_action :verify_authenticity_token, :only => [:create, :update_all, :update_threshold, :update, :delete, :update_all, :confirmuser]
   $threadCount = 0
   $threadLimit = ENV["THREAD_LIMIT"].to_f
+  include Prometheus::Controller
 
   def statistic
     @metric = Metric.where(id: params[:id]).first
@@ -96,15 +97,15 @@ class MetricController < ApplicationController
         dimension = r.dimension
 
         if dimension_column != nil
-          batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, r.id, dimension, dimension_column)
+          batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, r.id, dimension, dimension_column,r.redash)
         elsif value_type != 3
-          batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, r.id)
+          batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, r.id,r.redash)
         else
           batas_atas = r.upper_threshold
           batas_bawah = r.lower_threshold
         end
 
-        redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query)
+        redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query,r.redash)
         redash_schedule = getRedashSchedule(time_unit)
         redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
         if batas_atas != 0 && batas_bawah != 0 || value_type == 3
@@ -127,6 +128,8 @@ class MetricController < ApplicationController
   def update_threshold
     cortabot = Cortabot.new()
     cortabot.hawk_loging("update threshold",params[:id])
+    UPDATETHRESHOLD_COUNTER.increment(labels = {}, by = 1)
+
     isfinish = 0
     metric = Metric.where(id: params[:id]).first
     Thread.new{
@@ -141,15 +144,15 @@ class MetricController < ApplicationController
       dimension = metric.dimension
 
       if dimension_column != nil
-        batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, dimension_column)
+        batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, dimension_column,metric.redash)
       elsif value_type != 3
-        batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id)
+        batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id,metric.redash)
       else
         batas_atas = metric.upper_threshold
         batas_bawah = metric.lower_threshold
       end
 
-      redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query)
+      redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query,metric.redash)
       redash_schedule = getRedashSchedule(time_unit)
       redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
       if batas_atas != 0 && batas_bawah != 0 || value_type == 3
@@ -179,15 +182,15 @@ class MetricController < ApplicationController
       dimension = metric.dimension
 
       if dimension_column != nil
-        batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, dimension_column)
+        batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, dimension_column,metric.redash)
       elsif value_type != 3
-        batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id)
+        batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id,metric.redash)
       else
         batas_atas = metric.upper_threshold
         batas_bawah = metric.lower_threshold
       end
 
-      redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query)
+      redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query,metric.redash)
       redash_schedule = getRedashSchedule(time_unit)
       redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
       if batas_atas != 0 && batas_bawah != 0 || value_type == 3
@@ -228,6 +231,8 @@ class MetricController < ApplicationController
   end
 
   def delete
+    DELETE_COUNTER.increment(labels = {}, by = 1)
+
     cortabot = Cortabot.new()
     cortabot.hawk_loging("delete metric",params[:id])
 
@@ -255,15 +260,15 @@ class MetricController < ApplicationController
       value_type = params[:metric][:value_type]
 
       if dimension != "null"
-        batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, params[:metric][:dimension_column])
+        batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, params[:metric][:dimension_column], params[:metric][:redash])
       elsif value_type != 3
-        batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id)
+        batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id, params[:metric][:redash])
       else
         batas_atas = params[:metric][:upper_threshold]
         batas_bawah = params[:metric][:lower_threshold]
       end
 
-      redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query)
+      redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query,params[:metric][:redash])
       redash_schedule = getRedashSchedule(time_unit)
       redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
 
@@ -271,9 +276,9 @@ class MetricController < ApplicationController
         metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
         if value_type != 3
           if dimension != "null"
-            data = Redash.get_outer_threshold_dimension(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas, dimension, params[:metric][:dimension_column])
+            data = Redash.get_outer_threshold_dimension(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas, dimension, params[:metric][:dimension_column],params[:metric][:redash])
           else
-            data = Redash.get_outer_threshold(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas)
+            data = Redash.get_outer_threshold(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,params[:metric][:redash])
           end
           for i in 0..(data.count - 1)
 
@@ -297,6 +302,7 @@ class MetricController < ApplicationController
         end
         isfinish = 1
       elsif
+        FAILED_COUNTER.increment(labels = {}, by = 1)
         date_now = DateTime.now
         puts '{"Function":"create", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
         status = 'failed'
@@ -305,20 +311,29 @@ class MetricController < ApplicationController
       end
       $threadCount = $threadCount - 1
     }
-    status = 'failed'
-    if create_status and response
-      status = 'ok'
-      date_now = DateTime.now
-      puts '{"Function":"create", "Date": "'+date_now.to_s+'", "Status": "ok"}'
-    end
-    json_res = metric.to_hash
-
-    json_res['response'] = "fail"
-    if isfinish == 1
-      metric.save
+    if dimension != "null"
+      json_res = metric.to_hash
       json_res['response'] = "ok"
+      return json_res
+    else
+      while isfinish == 0
+        sleep(1)
+      end
+      status = 'failed'
+      if create_status and response
+        status = 'ok'
+        date_now = DateTime.now
+        puts '{"Function":"create", "Date": "'+date_now.to_s+'", "Status": "ok"}'
+      end
+      json_res = metric.to_hash
+
+      json_res['response'] = "fail"
+      if isfinish == 1
+        metric.save
+        json_res['response'] = "ok"
+      end
+      return json_res
     end
-    return json_res
   end
 
   # new metrics
@@ -328,9 +343,10 @@ class MetricController < ApplicationController
 
     isfinish = 0
     if params[:metric][:dimension_column] != ""
-      dimensions = Redash.get_dimension(params[:metric][:redash_id],params[:metric][:dimension_column])
+      dimensions = Redash.get_dimension(params[:metric][:redash_id],params[:metric][:dimension_column],params[:metric][:redash])
       json_res = []
       for i in 0..(dimensions.count)
+          INSERT_COUNTER.increment(labels = {}, by = 1)
           params[:metric][:dimension] = dimensions[i]
           metric = Metric.create(insert_params_dimension)
           create_status = true
@@ -342,6 +358,7 @@ class MetricController < ApplicationController
       json_res['response'] = "ok"
       render json: json_res
     else
+      INSERT_COUNTER.increment(labels = {}, by = 1)
       metric = Metric.create(insert_params)
       create_status = true
       if Metric.where(id: params[:redash_id]).nil?
@@ -352,19 +369,19 @@ class MetricController < ApplicationController
   end
 
   def resource_params_manual
-    params.require(:metric).permit(:id,:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :lower_threshold, :upper_threshold)
+    params.require(:metric).permit(:id,:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :lower_threshold, :upper_threshold, :redash, :on_off)
   end
 
   def resource_params
-    params.require(:metric).permit(:id,:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel)
+    params.require(:metric).permit(:id,:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :redash, :on_off)
   end
 
   def insert_params
-    params.require(:metric).permit(:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel)
+    params.require(:metric).permit(:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :redash, :on_off)
   end
 
   def insert_params_dimension
-    params.require(:metric).permit(:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :dimension, :dimension_column)
+    params.require(:metric).permit(:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :dimension, :dimension_column, :redash, :on_off)
   end
 
   def checkThread()
@@ -376,6 +393,7 @@ class MetricController < ApplicationController
   end
 
   def checkErrorThread()
+    THREAD_COUNTER.set({route: :thread_counter}, $threadCount)
     date_now = DateTime.now
     puts '{"Function":"checkErrorThread", "Date": "'+date_now.to_s+'", "Error Count": "'+$threadCount.to_s+'"}'
   end
@@ -404,15 +422,16 @@ class MetricController < ApplicationController
         dimension_column = r.dimension_column
         dimension = r.dimension
         if dimension_column != nil
-          value = Redash.get_result_dimension(query,value_column,time_unit,time_column,value_type,id,dimension_column,dimension)
+          value = Redash.get_result_dimension(query,value_column,time_unit,time_column,value_type,id,dimension_column,dimension,r.redash)
         else
-          value = Redash.get_result(query,value_column,time_unit,time_column,value_type,id)
+          value = Redash.get_result(query,value_column,time_unit,time_column,value_type,id,r.redash)
           dimension = ""
         end
         for i in 0..(value.count-1)
           value[i][0] = value[i][0].to_f
           if value[i][0] < lower_threshold
             if isNotSend(value[i][0],id,value[i][1])
+              LOWER_THRESHOLD.increment(labels = {}, by = 1)
               checkalert = Alert.where(metric_id: id, date: value[i][1])
               checkalert.destroy_all
 
@@ -438,16 +457,18 @@ class MetricController < ApplicationController
               upper_threshold = upper_threshold
               lower_threshold = lower_threshold
               telegram_chanel_id = telegram_chanel
+              r.update(last_update:date_now,last_result:0)
               if value_type != 3
-                cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension)
+                cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
               else
-                cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension)
+                cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
               end
             end
             # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
             # mail_job.deliver_now
           elsif value[i][0] > upper_threshold
             if isNotSend(value[i][0],id,value[i][1])
+              UPPER_THRESHOLD.increment(labels = {}, by = 1)
               checkalert = Alert.where(metric_id: id, date: value[i][1])
               checkalert.destroy_all
 
@@ -473,17 +494,20 @@ class MetricController < ApplicationController
               upper_threshold = upper_threshold
               lower_threshold = lower_threshold
               telegram_chanel_id = telegram_chanel
+              r.update(last_update:date_now,last_result:1)
               if value_type != 3
-                cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension)
+                cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
               else
-                cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension)
+                cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
               end
             end
             # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
             # mail_job.deliver_now
           else
             # puts value[i][0]
+            DIDALAM_THRESHOLD.increment(labels = {}, by = 1)
             date_now = DateTime.now
+            r.update(last_update:date_now,last_result:2)
             puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Didalam threshold", "Status": "ok"}'
           end
         end
@@ -494,16 +518,16 @@ class MetricController < ApplicationController
 
   def checkMetric
     date_current = DateTime.current
-    metrics = Metric.all
+    metrics = Metric.where(on_off: 1)
     metrics.each do |metric|
       if date_current.to_s[0..16] == (metric.next_update).to_s[0..16]
         checkThread()
         $threadCount = $threadCount + 1
         Thread.new{
-          if (metric.result_id).to_s == (Redash.get_redash_result_id(metric.redash_id)).to_s
-            result_redash_id = Redash.refresh(metric.redash_id)
+          if (metric.result_id).to_s == (Redash.get_redash_result_id(metric.redash_id,metric.redash)).to_s
+            result_redash_id = Redash.refresh(metric.redash_id,metric.redash)
           end
-          redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(metric.redash_id)
+          redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(metric.redash_id,metric.redash)
           redash_schedule = getRedashSchedule(metric.time_unit)
           redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
           metric.update(redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
@@ -528,12 +552,12 @@ class MetricController < ApplicationController
     redash_title = redash_title.to_s
     str_len = redash_title.length
 
-    if (redash_title.split("_")[0]).length != str_len
+    if (redash_title.split("]")[0]).length != str_len
+      title = (redash_title.split("]")[0]).split("[")[1]
+    elsif (redash_title.split("_")[0]).length != str_len
       title = redash_title.split("_")[0]
     elsif (redash_title.split("-")[0]).length != str_len
       title = redash_title.split("-")[0]
-    elsif (redash_title.split("]")[0]).length != str_len
-      title = (redash_title.split("]")[0]).split("[")[1]
     else
       title = redash_title
     end
@@ -543,7 +567,7 @@ class MetricController < ApplicationController
   end
 
   def isNotSend(value,metric_id,date)
-    key = value.to_s<<"|"<<metric_id.to_s<<"|"<<date.to_s
+    key = value.to_s << "|" << metric_id.to_s << "|" << date.to_s
 
     if ($redis.get(key)).nil?
       $redis.set(key,key)
@@ -556,11 +580,28 @@ class MetricController < ApplicationController
 
   def checkDeadSchedule()
     date_now = DateTime.current - 10.minutes
-    metrics = Metric.where(["next_update < '%s'",date_now])
+    metrics = Metric.where(["next_update < '%s' and on_off = 1",date_now])
     metrics.each do |r|
       next_update = DateTime.parse((DateTime.current).to_s) + 300.second
       r.update(next_update:next_update)
     end
+  end
+
+  def on_off
+    cortabot = Cortabot.new()
+
+    metric = Metric.where(id: params[:id]).first
+    if metric.on_off == 1
+      cortabot.hawk_loging("set off",params[:id])
+      metric.update(on_off:0)
+    else
+      cortabot.hawk_loging("set on",params[:id])
+      metric.update(on_off:1)
+    end
+    render json: metric.to_json
+
+    date_now = DateTime.now
+    puts '{"Function":"set on off", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
   end
 
 end

@@ -6,10 +6,11 @@ require 'csv'
 require 'set'
 
 class Redash
-  def self.set_threshold(query, time_column, value_column, time_unit, value_type,metric_id)
-    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/refresh'
+  def self.set_threshold(query, time_column, value_column, time_unit, value_type,metric_id,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s << '/refresh'
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.post(url,:headers => headers)
     obj = response.parsed_response
@@ -21,20 +22,22 @@ class Redash
     return HawkMain.calculate_data(data, time_column, value_column, time_unit, value_type,metric_id)
   end
 
-  def self.get_redash_detail(query)
-    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s
+  def self.get_redash_detail(query,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.get(url,:headers => headers)
 
     return response['name'],response['latest_query_data_id'],response['updated_at']
   end
 
-  def self.get_csv(query, time_column, value_column, time_unit, value_type,metric_id)
-    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/results.csv'
+  def self.get_csv(query, time_column, value_column, time_unit, value_type,metric_id,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s << '/results.csv'
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.get(url,:headers => headers)
 
@@ -49,10 +52,11 @@ class Redash
     return HawkMain.calculate_data(data, time_column, value_column, time_unit, value_type, metric_id)
   end
 
-  def self.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric_id, dimension, dimension_column)
-    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/results.csv'
+  def self.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric_id, dimension, dimension_column,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s << '/results.csv'
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.get(url,:headers => headers)
     dimension_position = 0
@@ -79,15 +83,15 @@ class Redash
     return HawkMain.calculate_data(data, time_column, value_column, time_unit, value_type, metric_id)
   end
 
-  def self.get_result_id(id_query)
+  def self.get_result_id(id_query,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
 		headers = {
-		 "Authorization"  => ENV["REDASH_KEY"]
+		 "Authorization"  => redash_key
 		}
 		status = 0
 		counter = 0
 		while status != 3 && status != 4
-			url = 'https://redash.bukalapak.io/api/jobs/'<<id_query.to_s
-			# url = 'https://redash.bukalapak.io/api/jobs/'<<'d7e330da-a40b-4515-9c3b-8cdc721ecb99'
+			url = 'https://' << redash_url << '.bukalapak.io/api/jobs/' << id_query.to_s
 			response = HTTParty.get(url,:headers => headers)
 			obj = response.parsed_response
 			status = obj['job']['status']
@@ -100,11 +104,12 @@ class Redash
 		return result_id
 	end
 
-	def self.get_data(result_id)
+	def self.get_data(result_id,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
 		headers = {
-		 "Authorization"  => ENV["REDASH_KEY"]
+		 "Authorization"  => redash_key
 		}
-		url = 'https://redash.bukalapak.io/api/query_results/'<<result_id
+		url = 'https://' << redash_url << '.bukalapak.io/api/query_results/' << result_id
 		response = HTTParty.get(url,:headers => headers)
 		obj = response.parsed_response
 		data = obj['query_result']['data']['rows']
@@ -112,10 +117,11 @@ class Redash
 		return data
 	end
 
-  def self.get_result(query,value_column,time_unit,time_column,value_type,metric_id)
-    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/results.csv'
+  def self.get_result(query,value_column,time_unit,time_column,value_type,metric_id,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s << '/results.csv'
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.get(url,:headers => headers)
     data = {}
@@ -129,10 +135,11 @@ class Redash
     return HawkMain.get_value(data,value_column,time_unit,time_column,value_type,metric_id)
   end
 
-  def self.get_result_dimension(query,value_column,time_unit,time_column,value_type,metric_id,dimension_column,dimension)
-    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/results.csv'
+  def self.get_result_dimension(query,value_column,time_unit,time_column,value_type,metric_id,dimension_column,dimension,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s << '/results.csv'
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.get(url,:headers => headers)
 
@@ -161,11 +168,12 @@ class Redash
     return HawkMain.get_value(data,value_column,time_unit,time_column,value_type,metric_id)
   end
 
-  def self.get_outer_threshold(query, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas)
+  def self.get_outer_threshold(query, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
     puts value_type
-    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/results.csv'
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s << '/results.csv'
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.get(url,:headers => headers)
 
@@ -180,11 +188,12 @@ class Redash
     return HawkMain.calculate_outer_threshold(data, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,query)
   end
 
-  def self.get_outer_threshold_dimension(query, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,dimension,dimension_column)
+  def self.get_outer_threshold_dimension(query, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,dimension,dimension_column,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
     puts value_type
-    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/results.csv'
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s << '/results.csv'
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.get(url,:headers => headers)
 
@@ -221,10 +230,11 @@ class Redash
     return HawkMain.calculate_outer_threshold(data, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,query)
   end
 
-  def self.calculate_median(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type)
-    url = 'https://redash.bukalapak.io/api/queries/'<<redash_id.to_s<<'/results.csv'
+  def self.calculate_median(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << redash_id.to_s << '/results.csv'
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.get(url,:headers => headers)
 
@@ -239,10 +249,11 @@ class Redash
     return HawkMain.median(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,data)
   end
 
-  def self.calculate_median_dimension(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,dimension,dimension_column)
-    url = 'https://redash.bukalapak.io/api/queries/'<<redash_id.to_s<<'/results.csv'
+  def self.calculate_median_dimension(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,dimension,dimension_column,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << redash_id.to_s << '/results.csv'
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.get(url,:headers => headers)
 
@@ -279,19 +290,21 @@ class Redash
     return HawkMain.median(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,data)
   end
 
-  def self.get_redash_result_id(query)
-    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s
+  def self.get_redash_result_id(query,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.get(url,:headers => headers)
     return response['latest_query_data_id']
   end
 
-  def self.refresh(query)
-    url = 'https://redash.bukalapak.io/api/queries/'<<query.to_s<<'/refresh'
+  def self.refresh(query,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s << '/refresh'
     headers = {
-     "Authorization"  => ENV["REDASH_KEY"]
+     "Authorization"  => redash_key
     }
     response = HTTParty.post(url,:headers => headers)
     obj = response.parsed_response
@@ -300,10 +313,11 @@ class Redash
     return get_result_id id_query
   end
 
-  def self.get_dimension(redash_id,dimension_column)
-    url = 'https://redash.bukalapak.io/api/queries/'<<redash_id.to_s<<'/results.csv'
+  def self.get_dimension(redash_id,dimension_column,redash_used)
+    redash_url,redash_key = get_redash_used(redash_used)
+    url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << redash_id.to_s << '/results.csv'
     headers = {
-      "Authorization"  => ENV["REDASH_KEY"]
+      "Authorization"  => redash_key
     }
     response = HTTParty.get(url,:headers => headers)
 
@@ -326,6 +340,25 @@ class Redash
       end
     end
     return data
+  end
+
+  def self.get_redash_used(redash_used)
+    case redash_used
+    when 0
+      return 'redash',ENV["REDASH_KEY"]
+    when 1
+      return 'cs-redash',ENV["REDASH_KEY_CS"]
+    when 2
+      return 'dg-redash',ENV["REDASH_KEY_DG"]
+    when 3
+      return 'rev-redash',ENV["REDASH_KEY_REV"]
+    when 4
+      return 'supply-redash',ENV["REDASH_KEY_SUPPLY"]
+    when 5
+      return 'trust-redash',ENV["REDASH_KEY_TRUST"]
+    when 6
+      return 'adhoc-redash',ENV["REDASH_KEY_ADHOC"]
+    end
   end
 
 end

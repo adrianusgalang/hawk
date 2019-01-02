@@ -22,6 +22,7 @@ Rails.application.routes.draw do
       post :update
       post :delete
       get :edit
+      get :on_off
     end
   end
 
@@ -39,6 +40,23 @@ Rails.application.routes.draw do
     collection do
       get :index
       post :removedateexclude
+    end
+  end
+
+  resources :list, only: [] do
+    resources :metrics do
+      get :all
+      get :group
+    end
+
+    resources :alerts do
+      get :all
+      get :group
+    end
+
+    member do
+      get :metric
+      get :alert
     end
   end
 

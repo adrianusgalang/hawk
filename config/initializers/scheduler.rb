@@ -9,7 +9,7 @@ scheduler.in '2s' do
   # metricController.get_alert('daily')
   puts "===================== D - O - N - E ===================="
 end
-
+######################################################
 # --------------------------------
 scheduler.every '60s' do
   metricController = MetricController.new()
@@ -28,6 +28,7 @@ scheduler.cron '0 0 * * 0' do
   metricController.update_all
 end
 # --------------------------------
+######################################################
 
 #
 # scheduler.cron '1 4 * * *' do
