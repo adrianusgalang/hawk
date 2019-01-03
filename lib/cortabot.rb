@@ -3,10 +3,8 @@ require 'dotenv'
 require 'date'
 
 class Cortabot
-  include Prometheus::Controller
 
   def send_cortabot(redash_title,status_uol,time_schedule,redash_link,value_column,value_alert,upper_threshold,lower_threshold,id,time_unit,lowerorhigher,dimension,redash_used)
-    SEND_CORTABOT_COUNTER.set({route: :send_cortabot_counter}, 1)
     title = redash_title.to_s
     source = "https://" << get_redash_used(redash_used) << ".bukalapak.io/queries/" << redash_link.to_s
 
@@ -44,7 +42,6 @@ class Cortabot
   end
 
   def send_cortabot_manual(redash_title,status_uol,time_schedule,redash_link,value_column,value_alert,upper_threshold,lower_threshold,id,time_unit,lowerorhigher,dimension,redash_used)
-    SEND_CORTABOT_COUNTER.set({route: :send_cortabot_counter}, 1)
     title = redash_title.to_s
     source = "https://" << get_redash_used(redash_used) << ".bukalapak.io/queries/" << redash_link.to_s
 

@@ -460,8 +460,10 @@ class MetricController < ApplicationController
               r.update(last_update:date_now,last_result:0)
               if value_type != 3
                 cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
+                SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
               else
                 cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
+                SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
               end
             end
             # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
@@ -497,8 +499,10 @@ class MetricController < ApplicationController
               r.update(last_update:date_now,last_result:1)
               if value_type != 3
                 cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
+                SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
               else
                 cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
+                SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
               end
             end
             # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
