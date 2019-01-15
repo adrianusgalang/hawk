@@ -19,34 +19,38 @@ class HawkMain
       dateExclude = DateExc.where(metric_id:redash_id)
       datecount = dateExclude.count
       for i in 0..(datacount-1)
-        str = data[i][time_column]
-        date = Date.parse str
-        for j in 0..(datacount-1)
-          str2 = data[j][time_column]
-          date2 = Date.parse str2
-          if day == 0
-            date2 = date2.prev_month
-          end
+        if data[i][time_column] != nil
+          str = data[i][time_column]
+          date = Date.parse str
+          for j in 0..(datacount-1)
+            if data[j][time_column] != nil
+              str2 = data[j][time_column]
+              date2 = Date.parse str2
+              if day == 0
+                date2 = date2.prev_month
+              end
 
-          if date == (date2 - day)
+              if date == (date2 - day)
 
-            status = false
-            status,value = checkExDate(date,dateExclude,datecount,time_unit)
-            if status == true
-              data[j][value_column] = value
+                status = false
+                status,value = checkExDate(date,dateExclude,datecount,time_unit)
+                if status == true
+                  data[j][value_column] = value
+                end
+                status = false
+                status,value = checkExDate(date2,dateExclude,datecount,time_unit)
+                if status == true
+                  data[i][value_column] = value
+                end
+
+                value = (data[j][value_column].to_f - data[i][value_column].to_f)/(data[i][value_column].to_f)
+                x[countx] = Array.new
+                x[countx][0] = hitungRaksen(value)
+                x[countx][1] = date2
+                countx = countx + 1
+                break
+              end
             end
-            status = false
-            status,value = checkExDate(date2,dateExclude,datecount,time_unit)
-            if status == true
-              data[i][value_column] = value
-            end
-
-            value = (data[j][value_column].to_f - data[i][value_column].to_f)/(data[i][value_column].to_f)
-            x[countx] = Array.new
-            x[countx][0] = hitungRaksen(value)
-            x[countx][1] = date2
-            countx = countx + 1
-            break
           end
         end
       end
@@ -58,31 +62,35 @@ class HawkMain
       dateExclude = DateExc.where(metric_id:redash_id)
       datecount = dateExclude.count
       for i in 0..(datacount-1)
-        str = data[i][time_column]
-        date = DateTime.parse str
-        for j in 0..(datacount-1)
-          str2 = data[j][time_column]
-          date2 = DateTime.parse str2
+        if data[i][time_column] != nil
+          str = data[i][time_column]
+          date = DateTime.parse str
+          for j in 0..(datacount-1)
+            if data[j][time_column] != nil
+              str2 = data[j][time_column]
+              date2 = DateTime.parse str2
 
-          if date.to_s[0..12] == (date2 - 7).to_s[0..12]
+              if date.to_s[0..12] == (date2 - 7).to_s[0..12]
 
-            status = false
-            status,value = checkExDate(date,dateExclude,datecount,0) # 0 hourly
-            if status == true
-              data[j][value_column] = value
+                status = false
+                status,value = checkExDate(date,dateExclude,datecount,0) # 0 hourly
+                if status == true
+                  data[j][value_column] = value
+                end
+                status = false
+                status,value = checkExDate(date2,dateExclude,datecount,0) # 0 hourly
+                if status == true
+                  data[i][value_column] = value
+                end
+
+                value = (data[j][value_column].to_f - data[i][value_column].to_f)/(data[i][value_column].to_f)
+                x[countx] = Array.new
+                x[countx][0] = hitungRaksen(value)
+                x[countx][1] = date2
+                countx = countx + 1
+                break
+              end
             end
-            status = false
-            status,value = checkExDate(date2,dateExclude,datecount,0) # 0 hourly
-            if status == true
-              data[i][value_column] = value
-            end
-
-            value = (data[j][value_column].to_f - data[i][value_column].to_f)/(data[i][value_column].to_f)
-            x[countx] = Array.new
-            x[countx][0] = hitungRaksen(value)
-            x[countx][1] = date2
-            countx = countx + 1
-            break
           end
         end
       end
@@ -176,53 +184,57 @@ class HawkMain
       dateExclude = DateExc.where(metric_id:metric_id)
       datecount = dateExclude.count
       for i in 0..(datacount-1)
-        str = data[i][time_column]
-        date = Date.parse str
-        date_now = Date.current
-        date_until = date_now
-        if day == 0
-          date_now = date_now.prev_month
-        end
-        date_now = date_now - day
-        if date >= date_now && date < date_until
-          if value_type == 3
-            final_value[value_counter] = Array.new
-            final_value[value_counter][0] = data[i][value_column]
-            final_value[value_counter][1] = date
-            value_counter = value_counter + 1
-          else
-            for j in 0..(datacount-1)
-              str2 = data[j][time_column]
-              date2 = Date.parse str2
-              if day2 == 0
-                date2 = date2.next_month
-              end
-              if date == (date2 + day2)
+        if data[i][time_column] != nil
+          str = data[i][time_column]
+          date = Date.parse str
+          date_now = Date.current
+          date_until = date_now
+          if day == 0
+            date_now = date_now.prev_month
+          end
+          date_now = date_now - day
+          if date >= date_now && date < date_until
+            if value_type == 3
+              final_value[value_counter] = Array.new
+              final_value[value_counter][0] = data[i][value_column]
+              final_value[value_counter][1] = date
+              value_counter = value_counter + 1
+            else
+              for j in 0..(datacount-1)
+                if data[j][time_column] != nil
+                  str2 = data[j][time_column]
+                  date2 = Date.parse str2
+                  if day2 == 0
+                    date2 = date2.next_month
+                  end
+                  if date == (date2 + day2)
 
-                status = false
-                status,value = checkExDate(date2,dateExclude,datecount,time_unit)
-                if status == true
-                  data[j][value_column] = value
-                end
+                    status = false
+                    status,value = checkExDate(date2,dateExclude,datecount,time_unit)
+                    if status == true
+                      data[j][value_column] = value
+                    end
 
-                if value_type == 1 #absolute
-                  final_value[value_counter] = Array.new
-                  value = (data[i][value_column].to_f - data[j][value_column].to_f)/(data[j][value_column].to_f)
-                  final_value[value_counter][0] = hitungRaksen(value)
-                  final_value[value_counter][1] = date
-                  value_counter = value_counter + 1
-                else #value_type == 2
-                  final_value[value_counter] = Array.new
-                  final_value[value_counter][0] = hitungRaksen(data[i][value_column])
-                  final_value[value_counter][1] = date
-                  value_counter = value_counter + 1
-                # else
-                #   final_value[value_counter] = Array.new
-                #   final_value[value_counter][0] = data[i][value_column]
-                #   final_value[value_counter][1] = date
-                #   value_counter = value_counter + 1
+                    if value_type == 1 #absolute
+                      final_value[value_counter] = Array.new
+                      value = (data[i][value_column].to_f - data[j][value_column].to_f)/(data[j][value_column].to_f)
+                      final_value[value_counter][0] = hitungRaksen(value)
+                      final_value[value_counter][1] = date
+                      value_counter = value_counter + 1
+                    else #value_type == 2
+                      final_value[value_counter] = Array.new
+                      final_value[value_counter][0] = hitungRaksen(data[i][value_column])
+                      final_value[value_counter][1] = date
+                      value_counter = value_counter + 1
+                      # else
+                      #   final_value[value_counter] = Array.new
+                      #   final_value[value_counter][0] = data[i][value_column]
+                      #   final_value[value_counter][1] = date
+                      #   value_counter = value_counter + 1
+                    end
+                    break
+                  end
                 end
-                break
               end
             end
           end
@@ -235,47 +247,51 @@ class HawkMain
       dateExclude = DateExc.where(metric_id:metric_id)
       datecount = dateExclude.count
       for i in 0..(datacount-1)
-        str = data[i][time_column]
-        date = DateTime.parse str
-        date_now = DateTime.current
-        date_now = date_now + 5.hours
-        if date >= date_now && date < date_now + 1.hours
-          if value_type == 3
-            final_value[value_counter] = Array.new
-            final_value[value_counter][0] = data[i][value_column]
-            final_value[value_counter][1] = date
-            value_counter = value_counter + 1
-          else
-            for j in 0..(datacount-1)
-              str2 = data[j][time_column]
-              date2 = DateTime.parse str2
-              # tanggal tidak masuk perhitungan di cek disini
-              status = 0
-              if date.to_s[0..12] == (date2 + 7).to_s[0..12]
+        if data[i][time_column] != nil
+          str = data[i][time_column]
+          date = DateTime.parse str
+          date_now = DateTime.current
+          date_now = date_now + 5.hours
+          if date >= date_now && date < date_now + 1.hours
+            if value_type == 3
+              final_value[value_counter] = Array.new
+              final_value[value_counter][0] = data[i][value_column]
+              final_value[value_counter][1] = date
+              value_counter = value_counter + 1
+            else
+              for j in 0..(datacount-1)
+                if data[j][time_column] != nil
+                  str2 = data[j][time_column]
+                  date2 = DateTime.parse str2
+                  # tanggal tidak masuk perhitungan di cek disini
+                  status = 0
+                  if date.to_s[0..12] == (date2 + 7).to_s[0..12]
 
-                status = false
-                status,value = checkExDate(date2,dateExclude,datecount,0) #hourly
-                if status == true
-                  data[j][value_column] = value
+                    status = false
+                    status,value = checkExDate(date2,dateExclude,datecount,0) #hourly
+                    if status == true
+                      data[j][value_column] = value
+                    end
+                    if value_type == 1 #absolute
+                      final_value[value_counter] = Array.new
+                      value = (data[i][value_column].to_f - data[j][value_column].to_f)/(data[j][value_column].to_f)
+                      final_value[value_counter][0] = hitungRaksen(value)
+                      final_value[value_counter][1] = date
+                      value_counter = value_counter + 1
+                    else #value_type == 2
+                      final_value[value_counter] = Array.new
+                      final_value[value_counter][0] = hitungRaksen(data[i][value_column])
+                      final_value[value_counter][1] = date
+                      value_counter = value_counter + 1
+                      # else
+                      #   final_value[value_counter] = Array.new
+                      #   final_value[value_counter][0] = data[i][value_column]
+                      #   final_value[value_counter][1] = date
+                      #   value_counter = value_counter + 1
+                    end
+                    break
+                  end
                 end
-                if value_type == 1 #absolute
-                  final_value[value_counter] = Array.new
-                  value = (data[i][value_column].to_f - data[j][value_column].to_f)/(data[j][value_column].to_f)
-                  final_value[value_counter][0] = hitungRaksen(value)
-                  final_value[value_counter][1] = date
-                  value_counter = value_counter + 1
-                else #value_type == 2
-                  final_value[value_counter] = Array.new
-                  final_value[value_counter][0] = hitungRaksen(data[i][value_column])
-                  final_value[value_counter][1] = date
-                  value_counter = value_counter + 1
-                # else
-                #   final_value[value_counter] = Array.new
-                #   final_value[value_counter][0] = data[i][value_column]
-                #   final_value[value_counter][1] = date
-                #   value_counter = value_counter + 1
-                end
-                break
               end
             end
           end
