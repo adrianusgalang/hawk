@@ -1,11 +1,20 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
     release: '{{.variable.VERSION}}'
   name: {{.config.projectName}}-{{.service.name}}-{{.environment.name}}
+  labels:
+    project: "{{.config.projectName}}"
+    service: "{{.service.name}}"
+    env: "{{.environment.name}}"
   namespace: {{.variable.VAR_KUBE_NAMESPACE}}
 spec:
+  selector:
+    matchLabels:
+      project: "{{.config.projectName}}"
+      service: "{{.service.name}}"
+      env: "{{.environment.name}}"
   replicas: {{.environment.replica}}
   revisionHistoryLimit: 3
   template:
@@ -23,7 +32,7 @@ spec:
       - name: blregistry
       containers:
       - name: {{.config.projectName}}-{{.service.name}}
-        image: registry.bukalapak.io/bukalapak/{{.config.projectName}}/{{.service.name}}:{{.variable.VERSION}}
+        image: {{.variable.CI_REGISTRY}}/bukalapak/{{.config.projectName}}/{{.service.name}}:{{.variable.VERSION}}
         livenessProbe:
           httpGet:
             path: /{{.service.healthz}}
@@ -56,7 +65,7 @@ spec:
         - -e
         - production
       - name: consul
-        image: registry.bukalapak.io/bukalapak/consul-image:0.2.0
+        image: {{.variable.CI_REGISTRY}}/bukalapak/consul-image:0.2.0
         resources:
           limits:
             memory: 128Mi

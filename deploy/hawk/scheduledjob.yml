@@ -1,5 +1,5 @@
-apiVersion: batch/v2alpha1
-kind: ScheduledJob
+apiVersion: batch/v1beta1
+kind: CronJob
 metadata:
   annotations:
     release: '{{.variable.VERSION}}'
@@ -24,7 +24,7 @@ spec:
           - name: blregistry
           containers:
           - name: {{.config.projectName}}-{{.service.name}}
-            image: registry.bukalapak.io/bukalapak/{{.config.projectName}}/{{.service.name}}:{{.variable.VERSION}}
+            image: {{.variable.CI_REGISTRY}}/bukalapak/{{.config.projectName}}/{{.service.name}}:{{.variable.VERSION}}
             resources:
               limits:
                 memory: {{.service.maxMem}}Gi

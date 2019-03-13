@@ -7,7 +7,7 @@ stages:
 - post-deployment
 
 variables:
-  VAR_KUBE_CONTEXT: production
+  VAR_KUBE_CONTEXT: $ENV
 
 test:
   stage: test
@@ -19,19 +19,19 @@ test:
 
 build-image:
   stage: build
-  image: registry.bukalapak.io/sre/gudang/docker:1.0.0
+  image: $CI_REGISTRY/sre/gudang/docker:1.0.0
   tags:
   - build-image
   only:
   - triggers
   script:
   - export VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
-  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   - make build push
 
 .deploy-template: &deploy-template
   stage: deployment
-  image: registry.bukalapak.io/sre/gudang/deployment:2.2.0
+  image: $CI_REGISTRY/sre/gudang/deployment:3.2.0
   tags:
   - bare-metal
   only:
@@ -89,7 +89,7 @@ notify-start:
 migrate-run-production:
   stage: migrate
   image:
-    name: registry.bukalapak.io/sre/migration:0.0.1
+    name: $CI_REGISTRY/sre/migration:0.0.1
     entrypoint: [""]
   variables:
     RAILS_ENV: production

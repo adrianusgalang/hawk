@@ -1,6 +1,7 @@
 .PHONY: all test dep build push checkenv deploy kubefile setup migrate
 
-IMAGE = registry.bukalapak.io/bukalapak/hawk/$(svc)
+CI_REGISTRY ?= registry.bukalapak.io
+IMAGE = $(CI_REGISTRY)/bukalapak/hawk/$(svc)
 DIRS  = $(shell cd deploy && ls -d */ | grep -v "_output")
 FILE ?= deployment
 ODIR := deploy/_output
@@ -38,7 +39,7 @@ deploy: checkenv $(ODIR)
 	@$(foreach svc, $(VAR_SERVICES), \
 		echo deploying "$(svc)" to environment "$(ENV)" && \
 		! kubelize genfile --overwrite -c ./ -s $(svc) -e $(ENV) deploy/$(svc)/$(FILE).yml $(ODIR)/$(svc)/ || \
-		kubectl replace -f $(ODIR)/$(svc)/$(FILE).yml || kubectl create -f $(ODIR)/$(svc)/$(FILE).yml ;)
+		kubectl apply -f $(ODIR)/$(svc)/$(FILE).yml ;)
 
 # only generate files from services
 kubefile: checkenv $(ODIR)
@@ -47,8 +48,8 @@ kubefile: checkenv $(ODIR)
 			kubelize genfile --overwrite -c ./ -s $(svc) -e $(ENV) $(f) $(ODIR)/$(svc)/;))
 
 setup:
-	docker run --rm -it --network host -v $PWD/db:/app/db -v $PWD/.env:/app/.env registry.bukalapak.io/sre/migration:0.0.1 db:create
-	docker run --rm -it --network host -v $PWD/db:/app/db -v $PWD/.env:/app/.env registry.bukalapak.io/sre/migration:0.0.1 db:migrate
+	docker run --rm -it --network host -v $PWD/db:/app/db -v $PWD/.env:/app/.env $(CI_REGISTRY)/sre/migration:0.0.1 db:create
+	docker run --rm -it --network host -v $PWD/db:/app/db -v $PWD/.env:/app/.env $(CI_REGISTRY)/sre/migration:0.0.1 db:migrate
 
 migrate:
-	docker run --rm -it --network host -v $PWD/db:/app/db -v $PWD/.env:/app/.env registry.bukalapak.io/sre/migration:0.0.1 db:migrate
+	docker run --rm -it --network host -v $PWD/db:/app/db -v $PWD/.env:/app/.env $(CI_REGISTRY)/sre/migration:0.0.1 db:migrate
