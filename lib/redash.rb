@@ -16,7 +16,7 @@ class Redash
     obj = response.parsed_response
     id_query = obj['job']['id']
 
-    result_id = get_result_id id_query
+    result_id = get_result_id(id_query,redash_used)
     data = get_data result_id.to_s
 
     return HawkMain.calculate_data(data, time_column, value_column, time_unit, value_type,metric_id)
@@ -87,10 +87,11 @@ class Redash
     redash_url,redash_key = get_redash_used(redash_used)
 		headers = {
 		 "Authorization"  => redash_key
-		}
+    }
 		status = 0
-		counter = 0
-		while status != 3 && status != 4
+    counter = 0
+    result_id = 0
+		while status != 3 && status != 4 && counter < 1000
 			url = 'https://' << redash_url << '.bukalapak.io/api/jobs/' << id_query.to_s
 			response = HTTParty.get(url,:headers => headers)
 			obj = response.parsed_response
@@ -100,7 +101,7 @@ class Redash
 			puts url
 			puts counter
 			counter = counter + 1
-		end
+    end
 		return result_id
 	end
 
@@ -310,7 +311,7 @@ class Redash
     obj = response.parsed_response
     id_query = obj['job']['id']
 
-    return get_result_id id_query
+    return get_result_id(id_query,redash_used)
   end
 
   def self.get_dimension(redash_id,dimension_column,redash_used)

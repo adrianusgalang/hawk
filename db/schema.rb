@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_27_072145) do
+ActiveRecord::Schema.define(version: 2018_11_22_041656) do
 
   create_table "alerts", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -53,6 +53,10 @@ ActiveRecord::Schema.define(version: 2018_08_27_072145) do
     t.string "group"
     t.string "next_update"
     t.integer "schedule"
+    t.integer "redash"
+    t.integer "on_off", limit: 1
+    t.string "last_update"
+    t.integer "last_result", limit: 2
   end
 
 end
