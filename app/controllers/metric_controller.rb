@@ -83,7 +83,7 @@ class MetricController < ApplicationController
     cortabot = Cortabot.new()
     cortabot.hawk_loging("update all threshold","FE")
     isfinish = 0
-    metrics = Metric.all
+    metrics = Metric.where("value_type != 3 and on_off = 1")
     metrics.each do |r|
       checkThread()
       $threadCount = $threadCount + 1

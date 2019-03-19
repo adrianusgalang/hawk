@@ -60,4 +60,10 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :channel, only: [] do
+    collection do
+      get :index
+    end
+  end
+
 end
