@@ -143,7 +143,7 @@ class MetricController < ApplicationController
       dimension_column = metric.dimension_column
       dimension = metric.dimension
 
-      if dimension_column != nil
+      if dimension_column != nil && value_type != 3
         batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, dimension_column,metric.redash)
       elsif value_type != 3
         batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id,metric.redash)
@@ -181,7 +181,7 @@ class MetricController < ApplicationController
       dimension_column = metric.dimension_column
       dimension = metric.dimension
 
-      if dimension_column != nil
+      if dimension_column != nil && value_type != 3
         batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, dimension_column,metric.redash)
       elsif value_type != 3
         batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id,metric.redash)

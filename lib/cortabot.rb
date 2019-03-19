@@ -33,9 +33,9 @@ class Cortabot
     end
 
     if dimension != ""
-      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&dimension=<code>" << dimension.to_s << "</code>&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
+      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&dimension=<code>" << dimension.to_s << "</code>&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]<< '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
     else
-      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
+      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]<< '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
     end
     puts '{"Function":"send_cortabot", "Date": "'+time_schedule.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
     HTTParty.get(URI.encode(url))
@@ -63,16 +63,16 @@ class Cortabot
     message = "<code>" << value_column.to_s << "</code> " << message_dimension << " is <b>" << lowerorhigher.to_s << "</b> than threshold. " << "The <b>" << status_uol.to_s << "</b> threshold is <code>" << thresholdd.to_s[0..6] << "</code>." << " Current value is <code>" << value_alert.to_s << "</code>"
 
     if dimension != ""
-      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&dimension=<code>" << dimension.to_s << "</code>&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
+      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&dimension=<code>" << dimension.to_s << "</code>&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]<< '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
     else
-      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
+      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]<< '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
     end
     puts '{"Function":"send_cortabot_manual", "Date": "'+time_schedule.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
     HTTParty.get(URI.encode(url))
   end
 
   def test_cortabot(id)
-    url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?message=Test_Message' << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
+    url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?message=Test_Message' << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"] << '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
     puts url
     date_now = DateTime.current
     puts '{"Function":"send_cortabot_test", "Date": "'+date_now.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
@@ -80,7 +80,7 @@ class Cortabot
   end
 
   def hawk_loging(action,note)
-    url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?message=Loging&action=' << action.to_s << '&note=' << note.to_s << '&id=-279091412&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]
+    url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?message=Loging&action=' << action.to_s << '&note=' << note.to_s << '&id=-279091412&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"] << '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
     puts url
     date_now = DateTime.current
     puts '{"Function":"send_cortabot_loging", "Date": "'+date_now.to_s+'", "To": "-279091412", "Status": "ok"}'
