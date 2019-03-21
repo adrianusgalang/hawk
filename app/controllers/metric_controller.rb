@@ -401,6 +401,7 @@ class MetricController < ApplicationController
   def removeErrorThread()
     date_now = DateTime.now
     puts '{"Function":"removeErrorThread", "Date": "'+date_now.to_s+'", "Reset Error": "'+$threadCount.to_s+'"}'
+    cortabot = Cortabot.new()
     cortabot.hawk_loging("Reset Error ",$threadCount)
     $threadCount = 0
   end

@@ -45,7 +45,7 @@ class Redash
     for i in 1..(response.count-1)
       data[i-1] = {}
       for j in 0..(response[0].count-1)
-        data[i-1][response[0][j]] = response[i][j]
+        data[i-1][response[0][j].downcase] = response[i][j]
       end
     end
 
@@ -63,7 +63,7 @@ class Redash
     counter = 0
     for i in 1..(response.count-1)
       for j in 0..(response[0].count-1)
-        if response[0][j] == dimension_column
+        if response[0][j].downcase == dimension_column
           dimension_position = j
         end
       end
@@ -75,7 +75,7 @@ class Redash
       if response[i][dimension_position] == dimension
         data[counter] = {}
         for j in 0..(response[0].count-1)
-          data[counter][response[0][j]] = response[i][j]
+          data[counter][response[0][j].downcase] = response[i][j]
         end
         counter = counter + 1
       end
@@ -129,7 +129,7 @@ class Redash
     for i in 1..(response.count-1)
       data[i-1] = {}
       for j in 0..(response[0].count-1)
-        data[i-1][response[0][j]] = response[i][j]
+        data[i-1][response[0][j].downcase] = response[i][j]
       end
     end
 
@@ -148,7 +148,7 @@ class Redash
     counter = 0
     for i in 1..(response.count-1)
       for j in 0..(response[0].count-1)
-        if response[0][j] == dimension_column
+        if response[0][j].downcase == dimension_column
           dimension_position = j
         end
       end
@@ -160,7 +160,7 @@ class Redash
       if response[i][dimension_position] == dimension
         data[counter] = {}
         for j in 0..(response[0].count-1)
-          data[counter][response[0][j]] = response[i][j]
+          data[counter][response[0][j].downcase] = response[i][j]
         end
         counter = counter + 1
       end
@@ -182,7 +182,7 @@ class Redash
     for i in 1..(response.count-1)
       data[i-1] = {}
       for j in 0..(response[0].count-1)
-        data[i-1][response[0][j]] = response[i][j]
+        data[i-1][response[0][j].downcase] = response[i][j]
       end
     end
 
@@ -202,7 +202,7 @@ class Redash
     counter = 0
     for i in 1..(response.count-1)
       for j in 0..(response[0].count-1)
-        if response[0][j] == dimension_column
+        if response[0][j].downcase == dimension_column
           dimension_position = j
         end
       end
@@ -214,7 +214,7 @@ class Redash
       if response[i][dimension_position] == dimension
         data[counter] = {}
         for j in 0..(response[0].count-1)
-          data[counter][response[0][j]] = response[i][j]
+          data[counter][response[0][j].downcase] = response[i][j]
         end
         counter = counter + 1
       end
@@ -243,7 +243,7 @@ class Redash
     for i in 1..(response.count-1)
       data[i-1] = {}
       for j in 0..(response[0].count-1)
-        data[i-1][response[0][j]] = response[i][j]
+        data[i-1][response[0][j].downcase] = response[i][j]
       end
     end
 
@@ -262,7 +262,7 @@ class Redash
     counter = 0
     for i in 1..(response.count-1)
       for j in 0..(response[0].count-1)
-        if response[0][j] == dimension_column
+        if response[0][j].downcase == dimension_column
           dimension_position = j
         end
       end
@@ -274,7 +274,7 @@ class Redash
       if response[i][dimension_position] == dimension
         data[counter] = {}
         for j in 0..(response[0].count-1)
-          data[counter][response[0][j]] = response[i][j]
+          data[counter][response[0][j].downcase] = response[i][j]
         end
         counter = counter + 1
       end
@@ -326,7 +326,7 @@ class Redash
     counter = 0
     for i in 1..(response.count-1)
       for j in 0..(response[0].count-1)
-        if response[0][j] == dimension_column
+        if response[0][j].downcase == dimension_column
           status = 0
           for k in 0..counter
             if data[k] == response[i][j]
