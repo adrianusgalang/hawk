@@ -63,6 +63,7 @@ Rails.application.routes.draw do
   resources :channel, only: [] do
     collection do
       get :index
+      post :broadcast
     end
   end
 

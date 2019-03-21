@@ -87,6 +87,14 @@ class Cortabot
     HTTParty.get(URI.encode(url))
   end
 
+  def boardcast(telegram_channel,message)
+    url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?message=' << message.to_s << '&id='<< telegram_channel.to_s<<'&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"] << '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
+    puts url
+    date_now = DateTime.current
+    puts '{"Function":"send_cortabot_loging", "Date": "'+date_now.to_s+'", "To": "'+telegram_channel+'", "Status": "ok"}'
+    HTTParty.get(URI.encode(url))
+  end
+
   def indo_time(time)
     time_schedule = time.split('+')[0]
     if time.split('+')[1] != nil
