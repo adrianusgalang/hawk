@@ -428,92 +428,101 @@ class MetricController < ApplicationController
           value = Redash.get_result(query,value_column,time_unit,time_column,value_type,id,r.redash)
           dimension = ""
         end
-        for i in 0..(value.count-1)
-          value[i][0] = value[i][0].to_f
-          if value[i][0] < lower_threshold
-            if isNotSend(value[i][0],id,value[i][1])
-              LOWER_THRESHOLD.increment(labels = {}, by = 1)
-              checkalert = Alert.where(metric_id: id, date: value[i][1])
-              checkalert.destroy_all
+        if value.count == 0
+          date_now = DateTime.now
+          r.update(last_update:date_now,last_result:3)
+          if value_type != 3
+            cortabot = Cortabot.new()
+            cortabot.send_cortabot_not_found(redash_t,"data not updated, please update your redash",query,telegram_chanel,r.redash)
+          end
+        else
+          for i in 0..(value.count-1)
+            value[i][0] = value[i][0].to_f
+            if value[i][0] < lower_threshold
+              if isNotSend(value[i][0],id,value[i][1])
+                LOWER_THRESHOLD.increment(labels = {}, by = 1)
+                checkalert = Alert.where(metric_id: id, date: value[i][1])
+                checkalert.destroy_all
 
-              alerts = Alert.new
-              alerts.value = value[i][0]
-              alerts.is_upper = false
-              alerts.metric_id = id
-              alerts.exclude_status = 0
-              alerts.date = value[i][1]
-              alerts.save
+                alerts = Alert.new
+                alerts.value = value[i][0]
+                alerts.is_upper = false
+                alerts.metric_id = id
+                alerts.exclude_status = 0
+                alerts.date = value[i][1]
+                alerts.save
 
-              cortabot = Cortabot.new()
-              redash_title = redash_t
-              lowerorupper = "lower"
-              lowerorhigher = "lower"
+                cortabot = Cortabot.new()
+                redash_title = redash_t
+                lowerorupper = "lower"
+                lowerorhigher = "lower"
 
-              date_now = DateTime.now
-              puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Lower", "Status": "ok"}'
+                date_now = DateTime.now
+                puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Lower", "Status": "ok"}'
 
-              redash_link = query
-              value_column = value_column
-              value_alert = value[i][0]
-              upper_threshold = upper_threshold
-              lower_threshold = lower_threshold
-              telegram_chanel_id = telegram_chanel
-              r.update(last_update:date_now,last_result:0)
-              if value_type != 3
-                cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
-                SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
-              else
-                cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
-                SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
+                redash_link = query
+                value_column = value_column
+                value_alert = value[i][0]
+                upper_threshold = upper_threshold
+                lower_threshold = lower_threshold
+                telegram_chanel_id = telegram_chanel
+                r.update(last_update:date_now,last_result:0)
+                if value_type != 3
+                  cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
+                  SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
+                else
+                  cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
+                  SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
+                end
               end
-            end
-            # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
-            # mail_job.deliver_now
-          elsif value[i][0] > upper_threshold
-            if isNotSend(value[i][0],id,value[i][1])
-              UPPER_THRESHOLD.increment(labels = {}, by = 1)
-              checkalert = Alert.where(metric_id: id, date: value[i][1])
-              checkalert.destroy_all
+              # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
+              # mail_job.deliver_now
+            elsif value[i][0] > upper_threshold
+              if isNotSend(value[i][0],id,value[i][1])
+                UPPER_THRESHOLD.increment(labels = {}, by = 1)
+                checkalert = Alert.where(metric_id: id, date: value[i][1])
+                checkalert.destroy_all
 
-              alerts = Alert.new
-              alerts.value = value[i][0]
-              alerts.is_upper = true
-              alerts.metric_id = id
-              alerts.exclude_status = 0
-              alerts.date = value[i][1]
-              alerts.save
+                alerts = Alert.new
+                alerts.value = value[i][0]
+                alerts.is_upper = true
+                alerts.metric_id = id
+                alerts.exclude_status = 0
+                alerts.date = value[i][1]
+                alerts.save
 
-              cortabot = Cortabot.new()
-              redash_title = redash_t
-              lowerorupper = "upper"
-              lowerorhigher = "higher"
+                cortabot = Cortabot.new()
+                redash_title = redash_t
+                lowerorupper = "upper"
+                lowerorhigher = "higher"
 
-              date_now = DateTime.now
-              puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Upper", "Status": "ok"}'
+                date_now = DateTime.now
+                puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Upper", "Status": "ok"}'
 
-              redash_link = query
-              value_column = value_column
-              value_alert = value[i][0]
-              upper_threshold = upper_threshold
-              lower_threshold = lower_threshold
-              telegram_chanel_id = telegram_chanel
-              r.update(last_update:date_now,last_result:1)
-              if value_type != 3
-                cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
-                SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
-              else
-                cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
-                SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
+                redash_link = query
+                value_column = value_column
+                value_alert = value[i][0]
+                upper_threshold = upper_threshold
+                lower_threshold = lower_threshold
+                telegram_chanel_id = telegram_chanel
+                r.update(last_update:date_now,last_result:1)
+                if value_type != 3
+                  cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
+                  SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
+                else
+                  cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
+                  SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
+                end
               end
+              # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
+              # mail_job.deliver_now
+            else
+              # puts value[i][0]
+              DIDALAM_THRESHOLD.increment(labels = {}, by = 1)
+              date_now = DateTime.now
+              r.update(last_update:date_now,last_result:2)
+              puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Didalam threshold", "Status": "ok"}'
             end
-            # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
-            # mail_job.deliver_now
-          else
-            # puts value[i][0]
-            DIDALAM_THRESHOLD.increment(labels = {}, by = 1)
-            date_now = DateTime.now
-            r.update(last_update:date_now,last_result:2)
-            puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Didalam threshold", "Status": "ok"}'
           end
         end
       }
