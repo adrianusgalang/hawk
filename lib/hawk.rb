@@ -187,7 +187,7 @@ class HawkMain
         if data[i][time_column] != nil
           str = data[i][time_column]
           date = Date.parse str
-          date_now = Date.current + 7.hours
+          date_now = Date.current
           date_until = date_now
           if day == 0
             date_now = date_now.prev_month
