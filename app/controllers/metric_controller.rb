@@ -432,7 +432,7 @@ class MetricController < ApplicationController
         if value.count == 0
           date_now = DateTime.now
           r.update(last_update:date_now,last_result:3)
-          if value_type != 3
+          if dimension == ""
             cortabot = Cortabot.new()
             cortabot.send_cortabot_not_found(redash_t,"data not updated, please update your redash",query,telegram_chanel,r.redash)
           end

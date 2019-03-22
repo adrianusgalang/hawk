@@ -60,7 +60,7 @@ class Cortabot
       # time_schedule = (time_schedule).to_s[0..9] << " " << (time_schedule).to_s[11..18]
       time_schedule = indo_time(time_schedule.to_s)
     end
-    message = "<code>" << value_column.to_s << "</code> " << message_dimension << " is <b>" << lowerorhigher.to_s << "</b> than threshold. " << "The <b>" << status_uol.to_s << "</b> threshold is <code>" << thresholdd.to_s[0..6] << "</code>." << " Current value is <code>" << value_alert.to_s << "</code>"
+    message = "<code>" << value_column.to_s << "</code> " << message_dimension << " is <b>" << lowerorhigher.to_s << "</b> than threshold. " << "The <b>" << status_uol.to_s << "</b> threshold is <code>" << thresholdd.to_s << "</code>." << " Current value is <code>" << value_alert.to_s << "</code>"
 
     if dimension != ""
       url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&dimension=<code>" << dimension.to_s << "</code>&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]<< '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
