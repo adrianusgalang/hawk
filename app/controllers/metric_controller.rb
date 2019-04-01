@@ -107,7 +107,11 @@ class MetricController < ApplicationController
 
         redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query,r.redash)
         redash_schedule = getRedashSchedule(time_unit)
-        redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+        if time_unit < 4
+          redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+        else
+          redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 60).second
+        end
         if batas_atas != 0 && batas_bawah != 0 || value_type == 3
           r.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
         elsif
@@ -154,7 +158,11 @@ class MetricController < ApplicationController
 
       redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query,metric.redash)
       redash_schedule = getRedashSchedule(time_unit)
-      redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+      if time_unit < 4
+        redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+      else
+        redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 60).second
+      end
       if batas_atas != 0 && batas_bawah != 0 || value_type == 3
         metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
         isfinish = 1
@@ -192,7 +200,11 @@ class MetricController < ApplicationController
 
       redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query,metric.redash)
       redash_schedule = getRedashSchedule(time_unit)
-      redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+      if time_unit < 4
+        redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+      else
+        redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 60).second
+      end
       if batas_atas != 0 && batas_bawah != 0 || value_type == 3
         metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
       elsif
@@ -259,7 +271,7 @@ class MetricController < ApplicationController
       time_unit = params[:metric][:time_unit]
       value_type = params[:metric][:value_type]
 
-      if dimension != "null"
+      if dimension != "null" && value_type != 3
         batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, params[:metric][:dimension_column], params[:metric][:redash])
       elsif value_type != 3
         batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id, params[:metric][:redash])
@@ -270,7 +282,11 @@ class MetricController < ApplicationController
 
       redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query,params[:metric][:redash])
       redash_schedule = getRedashSchedule(time_unit)
-      redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+      if time_unit < 4
+        redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+      else
+        redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 60).second
+      end
 
       if batas_atas != 0 && batas_bawah != 0 || value_type == 3
         metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
@@ -340,7 +356,6 @@ class MetricController < ApplicationController
   def create
     cortabot = Cortabot.new()
     cortabot.hawk_loging("add metric",params[:metric][:email])
-
     isfinish = 0
     if params[:metric][:dimension_column] != ""
       dimensions = Redash.get_dimension(params[:metric][:redash_id],params[:metric][:dimension_column],params[:metric][:redash])
@@ -544,7 +559,11 @@ class MetricController < ApplicationController
           end
           redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(metric.redash_id,metric.redash)
           redash_schedule = getRedashSchedule(metric.time_unit)
-          redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+          if metric.time_unit < 4
+            redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+          else
+            redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 60).second
+          end
           metric.update(redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
           get_alert(metric.id)
           $threadCount = $threadCount - 1
@@ -560,6 +579,18 @@ class MetricController < ApplicationController
       return 3600*24
     elsif time_unit == 2
       return 3600*24*7
+    elsif time_unit == 3
+      return 3600*24*7*4
+    elsif time_unit == 4
+      return 3600/12
+    elsif time_unit == 5
+      return 3600/6
+    elsif time_unit == 6
+      return 3600/4
+    elsif time_unit == 7
+      return 3600/2
+    elsif time_unit == 8
+      return 3600/60
     end
   end
 
@@ -586,11 +617,12 @@ class MetricController < ApplicationController
 
     if ($redis.get(key)).nil?
       $redis.set(key,key)
-      $redis.expire(key,5.minute.to_i)
+      $redis.expire(key,2.minute.to_i)
       return true
     else
       return false
     end
+    # return true
   end
 
   def checkDeadSchedule()

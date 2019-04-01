@@ -30,6 +30,9 @@ class Cortabot
       message = "<code>"  <<  value_column.to_s << "</code> " << message_dimension << " is <b>" << lowerorhigher.to_s << "</b> than threshold. " << "The <b>" << status_uol.to_s << "</b> threshold is <code>" << thresholdd.to_s[0..6] << "%</code>." << " Current value <code>" << increase.to_s << " " << (value_increase.round(2)).to_s[0..6] << "% </code> from 28 days ago and <code>" << ratio_relative.to_s[0..6] << "%</code> relative to the <b>" << status_uol.to_s << "</b> threshold."
     elsif time_unit == 2
       message = "<code>" << value_column.to_s << "</code> " << message_dimension << " is <b>" << lowerorhigher.to_s << "</b> than threshold. " << "The <b>" << status_uol.to_s << "</b> threshold is <code>" << thresholdd.to_s[0..6] << "%</code>." << " Current value <code>" << increase.to_s << " " << (value_increase.round(2)).to_s[0..6] << "% </code> from 4 weeks ago and <code>" << ratio_relative.to_s[0..6] << "%</code> relative to the <b>" << status_uol.to_s << "</b> threshold."
+    else
+      time_schedule = indo_time(time_schedule.to_s)
+      message = "<code>" << value_column.to_s << "</code> " << message_dimension << " is <b>" << lowerorhigher.to_s << "</b> than threshold. " << "The <b>" << status_uol.to_s << "</b> threshold is <code>" << thresholdd.to_s[0..6] << "%</code>. Current value <code>" << increase.to_s << " " << (value_increase.round(2)).to_s[0..6] << "% </code> from 7 days ago and <code>" << ratio_relative.to_s[0..6] << "%</code> relative to the <b>" << status_uol.to_s << "</b> threshold."
     end
 
     if dimension != ""
@@ -58,6 +61,8 @@ class Cortabot
 
     if time_unit == 0
       # time_schedule = (time_schedule).to_s[0..9] << " " << (time_schedule).to_s[11..18]
+      time_schedule = indo_time(time_schedule.to_s)
+    elsif time_unit > 3
       time_schedule = indo_time(time_schedule.to_s)
     end
     message = "<code>" << value_column.to_s << "</code> " << message_dimension << " is <b>" << lowerorhigher.to_s << "</b> than threshold. " << "The <b>" << status_uol.to_s << "</b> threshold is <code>" << thresholdd.to_s << "</code>." << " Current value is <code>" << value_alert.to_s << "</code>"

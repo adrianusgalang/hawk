@@ -4,7 +4,7 @@ require 'dotenv'
 
 class HawkMain
   def self.compare(data,time_unit,value_column,time_column,redash_id)
-    if time_unit != 0 #hourly
+    if time_unit != 0 && time_unit != 4 && time_unit != 5 && time_unit != 6 && time_unit != 7 && time_unit != 8 #hourly
       day = 0
       case time_unit
       when 1 #daily
@@ -55,7 +55,7 @@ class HawkMain
         end
       end
       return x
-    else
+    elsif time_unit == 0
       datacount = data.count
       countx = 0
       x = Array.new
@@ -95,11 +95,51 @@ class HawkMain
         end
       end
       return x
+    else 
+      datacount = data.count
+      countx = 0
+      x = Array.new
+      dateExclude = DateExc.where(metric_id:redash_id)
+      datecount = dateExclude.count
+      for i in 0..(datacount-1)
+        if data[i][time_column] != nil
+          str = data[i][time_column]
+          date = DateTime.parse str
+          for j in 0..(datacount-1)
+            if data[j][time_column] != nil
+              str2 = data[j][time_column]
+              date2 = DateTime.parse str2
+
+              if date.to_s[0..15] == (date2 - 1).to_s[0..15]
+                status = false
+                status,value = checkExDate(date,dateExclude,datecount,time_unit) # 0 hourly
+                if status == true
+                  data[j][value_column] = value
+                end
+                status = false
+                status,value = checkExDate(date2,dateExclude,datecount,time_unit) # 0 hourly
+                if status == true
+                  data[i][value_column] = value
+                end
+
+                value = (data[j][value_column].to_f - data[i][value_column].to_f)/(data[i][value_column].to_f)
+                # puts value
+                x[countx] = Array.new
+                x[countx][0] = hitungRaksen(value)
+                x[countx][1] = date2
+                countx = countx + 1
+                break
+              end
+            end
+          end
+        end
+      end
+      return x
     end
   end
 
   def self.checkExDate(date,dateExclude,excludeCount,type)
-    if type != 0 # hourly
+    if type != 0 && type != 4 && type != 5 && type != 6 && type != 7 && type != 8 #hourly
       for i in 0..(excludeCount - 1)
 
         date_until = Date.parse dateExclude[i]['date']
@@ -119,7 +159,7 @@ class HawkMain
 
       end
       return false,0
-    else
+    elsif type == 0
       # hourly
       for i in 0..(excludeCount - 1)
         if dateExclude[i]['date'].length == 10
@@ -129,6 +169,21 @@ class HawkMain
           end
         else
           if date.to_s[0..12] == dateExclude[i]['date'].to_s[0..12]
+            return true,dateExclude[i]['value']
+            break
+          end
+        end
+      end
+      return false,0
+    else
+      for i in 0..(excludeCount - 1)
+        if dateExclude[i]['date'].length == 13
+          if date.to_s[0..12] == dateExclude[i]['date'].to_s[0..12]
+            return true,dateExclude[i]['value']
+            break
+          end
+        else
+          if date.to_s[0..15] == dateExclude[i]['date'].to_s[0..15]
             return true,dateExclude[i]['value']
             break
           end
@@ -168,7 +223,7 @@ class HawkMain
 
   def self.get_value(data,value_column,time_unit,time_column,value_type,metric_id)
     datacount = data.count
-    if time_unit != 0 # hourly
+    if time_unit != 0 && time_unit != 4 && time_unit != 5 && time_unit != 6 && time_unit != 7 && time_unit != 8 #hourly
       day = 0
       day2 = 0
       case time_unit
@@ -241,7 +296,7 @@ class HawkMain
         end
       end
       return final_value
-    else
+    elsif time_unit == 0
       value_counter = 0
       final_value = Array.new
       dateExclude = DateExc.where(metric_id:metric_id)
@@ -298,6 +353,71 @@ class HawkMain
         end
       end
       return final_value
+    else
+      value_counter = 0
+      final_value = Array.new
+      dateExclude = DateExc.where(metric_id:metric_id)
+      datecount = dateExclude.count
+      for i in 0..(datacount-1)
+        if data[i][time_column] != nil
+          str = data[i][time_column]
+          date = DateTime.parse str
+          date_now = DateTime.current
+          date_now = date_now + 7.hours
+          minutes_range = 5
+          case time_unit
+          when 4   
+            minutes_range = 5
+          when 5    
+            minutes_range = 10
+          when 6    
+            minutes_range = 15
+          when 7    
+            minutes_range = 30
+          when 8    
+            minutes_range = 1
+          end
+
+          if date >= date_now - (2*minutes_range).minutes && date < date_now - minutes_range.minutes
+            if value_type == 3
+              final_value[value_counter] = Array.new
+              final_value[value_counter][0] = data[i][value_column]
+              final_value[value_counter][1] = date
+              value_counter = value_counter + 1
+            else
+              for j in 0..(datacount-1)
+                if data[j][time_column] != nil
+                  str2 = data[j][time_column]
+                  date2 = DateTime.parse str2
+                  # tanggal tidak masuk perhitungan di cek disini
+                  status = 0
+                  if date.to_s[0..15] == (date2 + 7).to_s[0..15]
+                    status = false
+                    status,value = checkExDate(date2,dateExclude,datecount,time_unit) #hourly
+                    if status == true
+                      data[j][value_column] = value
+                    end
+                    if value_type == 1 #absolute
+                      final_value[value_counter] = Array.new
+                      value = (data[i][value_column].to_f - data[j][value_column].to_f)/(data[j][value_column].to_f)
+                      final_value[value_counter][0] = hitungRaksen(value)
+                      final_value[value_counter][1] = date
+                      value_counter = value_counter + 1
+                    else #value_type == 2
+                      final_value[value_counter] = Array.new
+                      final_value[value_counter][0] = hitungRaksen(data[i][value_column])
+                      final_value[value_counter][1] = date
+                      value_counter = value_counter + 1
+                    end
+                    break
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+      return final_value
     end
   end
 
@@ -324,7 +444,7 @@ class HawkMain
       ratio = temp
     end
 
-    if ratio.count > 25 && (time_unit == 0 || time_unit == 1)
+    if ratio.count > 25 && (time_unit == 0 || time_unit == 1 || time_unit == 4 || time_unit == 5 || time_unit == 6 || time_unit == 7 || time_unit == 8)
       lower_bound, upper_bound = lower_upper_bound(ratio)
       return lower_bound,upper_bound
     elsif ratio.count > 5 && (time_unit == 2 || time_unit == 3)

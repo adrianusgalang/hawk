@@ -1,5 +1,5 @@
 FROM ruby:2.4.1
-RUN apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs && apt-get install -y sendmail
+RUN sed -i 's/^.*jessie-updates/#&/' /etc/apt/sources.list && apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs && apt-get install -y sendmail
 
 WORKDIR /hawk
 

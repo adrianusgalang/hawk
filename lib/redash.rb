@@ -171,7 +171,7 @@ class Redash
 
   def self.get_outer_threshold(query, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,redash_used)
     redash_url,redash_key = get_redash_used(redash_used)
-    puts value_type
+    # puts value_type
     url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s << '/results.csv'
     headers = {
      "Authorization"  => redash_key
@@ -191,7 +191,7 @@ class Redash
 
   def self.get_outer_threshold_dimension(query, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,dimension,dimension_column,redash_used)
     redash_url,redash_key = get_redash_used(redash_used)
-    puts value_type
+    # puts value_type
     url = 'https://' << redash_url << '.bukalapak.io/api/queries/' << query.to_s << '/results.csv'
     headers = {
      "Authorization"  => redash_key
