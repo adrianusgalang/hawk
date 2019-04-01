@@ -4,20 +4,18 @@ module Prometheus
     # Create a default Prometheus registry for our metrics.
     prometheus = Prometheus::Client.registry
 
-    # Create a simple gauge metric.
-    # GAUGE_EXAMPLE = Prometheus::Client::Gauge.new(:gauge_example, 'A simple gauge that rands between 1 and 100 inclusively.')
-    THREAD_COUNTER = Prometheus::Client::Gauge.new(:threadCount,'thread counter')
+    DELETE_COUNTER = Prometheus::Client::Histogram.new(:deleteCount,'delete counter')
+    INSERT_COUNTER = Prometheus::Client::Histogram.new(:insertCount,'insert counter')
+    FAILED_COUNTER = Prometheus::Client::Histogram.new(:failedCount,'failed insert counter')
 
-    DELETE_COUNTER = Prometheus::Client::Counter.new(:deleteCount,'delete counter')
-    INSERT_COUNTER = Prometheus::Client::Counter.new(:insertCount,'insert counter')
-    FAILED_COUNTER = Prometheus::Client::Counter.new(:failedCount,'failed insert counter')
+    UPDATETHRESHOLD_COUNTER = Prometheus::Client::Histogram.new(:updateThresholdCount,'update threshold counter')
 
-    UPDATETHRESHOLD_COUNTER = Prometheus::Client::Counter.new(:updateThresholdCount,'update threshold counter')
+    SEND_CORTABOT_COUNTER = Prometheus::Client::Histogram.new(:cortabotCount,'send cortabot counter')
+    LOWER_THRESHOLD = Prometheus::Client::Histogram.new(:lowerCount,'lower counter')
+    UPPER_THRESHOLD = Prometheus::Client::Histogram.new(:upperCount,'upper counter')
+    DIDALAM_THRESHOLD = Prometheus::Client::Histogram.new(:innerCount,'inner counter')
 
-    SEND_CORTABOT_COUNTER = Prometheus::Client::Counter.new(:cortabotCount,'send cortabot counter')
-    LOWER_THRESHOLD = Prometheus::Client::Counter.new(:lowerCount,'lower counter')
-    UPPER_THRESHOLD = Prometheus::Client::Counter.new(:upperCount,'upper counter')
-    DIDALAM_THRESHOLD = Prometheus::Client::Counter.new(:innerCount,'inner counter')
+    THREAD_COUNTER = Prometheus::Client::Histogram.new(:threadCount, 'thread counter')
     # Register GAUGE_EXAMPLE with the registry we previously created.
     prometheus.register(THREAD_COUNTER)
     prometheus.register(DELETE_COUNTER)
