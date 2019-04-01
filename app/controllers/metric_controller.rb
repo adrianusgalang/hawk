@@ -133,7 +133,7 @@ class MetricController < ApplicationController
     cortabot = Cortabot.new()
     cortabot.hawk_loging("update threshold",params[:id])
     # UPDATETHRESHOLD_COUNTER.increment(labels = {}, by = 1)
-    UPDATETHRESHOLD_COUNTER.observe({ service: 'update' }, Benchmark.realtime {1})
+    UPDATETHRESHOLD_COUNTER.observe({ service: 'hawk_update' }, Benchmark.realtime {1})
 
     isfinish = 0
     metric = Metric.where(id: params[:id]).first
@@ -245,7 +245,7 @@ class MetricController < ApplicationController
 
   def delete
     # DELETE_COUNTER.increment(labels = {}, by = 1)
-    DELETE_COUNTER.observe({ service: 'delete' }, Benchmark.realtime {1})
+    DELETE_COUNTER.observe({ service: 'hawk_delete' }, Benchmark.realtime {1})
     cortabot = Cortabot.new()
     cortabot.hawk_loging("delete metric",params[:id])
 
@@ -320,7 +320,7 @@ class MetricController < ApplicationController
         isfinish = 1
       elsif
         # FAILED_COUNTER.increment(labels = {}, by = 1)
-        FAILED_COUNTER.observe({ service: 'failed' }, Benchmark.realtime {1})
+        FAILED_COUNTER.observe({ service: 'hawk_failed' }, Benchmark.realtime {1})
         date_now = DateTime.now
         puts '{"Function":"create", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
         status = 'failed'
@@ -364,7 +364,7 @@ class MetricController < ApplicationController
       json_res = []
       for i in 0..(dimensions.count)
           # INSERT_COUNTER.increment(labels = {}, by = 1)
-          INSERT_COUNTER.observe({ service: 'insert' }, Benchmark.realtime {1})
+          INSERT_COUNTER.observe({ service: 'hawk_insert' }, Benchmark.realtime {1})
           params[:metric][:dimension] = dimensions[i]
           metric = Metric.create(insert_params_dimension)
           create_status = true
@@ -377,7 +377,7 @@ class MetricController < ApplicationController
       render json: json_res
     else
       # INSERT_COUNTER.increment(labels = {}, by = 1)
-      INSERT_COUNTER.observe({ service: 'insert' }, Benchmark.realtime {1})
+      INSERT_COUNTER.observe({ service: 'hawk_insert' }, Benchmark.realtime {1})
       metric = Metric.create(insert_params)
       create_status = true
       if Metric.where(id: params[:redash_id]).nil?
@@ -449,6 +449,7 @@ class MetricController < ApplicationController
           value = Redash.get_result(query,value_column,time_unit,time_column,value_type,id,r.redash)
           dimension = ""
         end
+        # puts value.count
         if value.count == 0
           date_now = DateTime.now
           r.update(last_update:date_now,last_result:3)
@@ -461,7 +462,8 @@ class MetricController < ApplicationController
             value[i][0] = value[i][0].to_f
             if value[i][0] < lower_threshold
               if isNotSend(value[i][0],id,value[i][1])
-                LOWER_THRESHOLD.increment(labels = {}, by = 1)
+                # LOWER_THRESHOLD.increment(labels = {}, by = 1)
+                LOWER_THRESHOLD.observe({ service: 'hawk_lower_threshold' }, Benchmark.realtime { 1 })
                 checkalert = Alert.where(metric_id: id, date: value[i][1])
                 checkalert.destroy_all
 
@@ -491,19 +493,20 @@ class MetricController < ApplicationController
                 if value_type != 3
                   cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
                   # SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
-                  SEND_CORTABOT_COUNTER.observe({ service: 'send_cortabot' }, Benchmark.realtime { 1 })
+                  SEND_CORTABOT_COUNTER.observe({ service: 'hawk_send_cortabot' }, Benchmark.realtime { 1 })
 
                 else
                   cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
                   # SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
-                  SEND_CORTABOT_COUNTER.observe({ service: 'send_cortabot' }, Benchmark.realtime { 1 })
+                  SEND_CORTABOT_COUNTER.observe({ service: 'hawk_send_cortabot' }, Benchmark.realtime { 1 })
                 end
               end
               # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
               # mail_job.deliver_now
             elsif value[i][0] > upper_threshold
               if isNotSend(value[i][0],id,value[i][1])
-                UPPER_THRESHOLD.increment(labels = {}, by = 1)
+                # UPPER_THRESHOLD.increment(labels = {}, by = 1)
+                UPPER_THRESHOLD.observe({ service: 'hawk_upper_threshold' }, Benchmark.realtime { 1 })
                 checkalert = Alert.where(metric_id: id, date: value[i][1])
                 checkalert.destroy_all
 
@@ -533,18 +536,19 @@ class MetricController < ApplicationController
                 if value_type != 3
                   cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
                   # SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
-                  SEND_CORTABOT_COUNTER.observe({ service: 'send_cortabot' }, Benchmark.realtime {1})
+                  SEND_CORTABOT_COUNTER.observe({ service: 'hawk_send_cortabot' }, Benchmark.realtime {1})
                 else
                   cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
                   # SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
-                  SEND_CORTABOT_COUNTER.observe({ service: 'send_cortabot' }, Benchmark.realtime {1})
+                  SEND_CORTABOT_COUNTER.observe({ service: 'hawk_send_cortabot' }, Benchmark.realtime {1})
                 end
               end
               # mail_job = HawkMailer.send_email(redash_title,lowerorupper,date,redash_link,value_column,value_alert,upper_threshold,lower_threshold,email_to)
               # mail_job.deliver_now
             else
               # puts value[i][0]
-              DIDALAM_THRESHOLD.increment(labels = {}, by = 1)
+              # DIDALAM_THRESHOLD.increment(labels = {}, by = 1)
+              DIDALAM_THRESHOLD.observe({ service: 'hawk_inner_threshold' }, Benchmark.realtime { 1 })
               date_now = DateTime.now
               r.update(last_update:date_now,last_result:2)
               puts '{"Function":"get_alert", "Date": "'+date_now.to_s+'", "Id": "'+id.to_s+'", "Note": "Didalam threshold", "Status": "ok"}'
