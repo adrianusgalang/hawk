@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       post :create
       get :manage
       get :new
+      get :checkNewDimension
     end
 
     member do

@@ -128,6 +128,32 @@ class MetricController < ApplicationController
     puts '{"Function":"update_all", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
 
+  def checkNewDimension
+    cortabot = Cortabot.new()
+    cortabot.hawk_loging("check new dimension","SS")
+    isfinish = 0
+    metrics = Metric.select(:redash_id,:time_column,:value_column,:dimension_column,:time_unit,:telegram_chanel,:value_type,:redash,:email).where("dimension_column != 'NULL'").group("1,2,3,4,5,6,7,8,9")
+    metrics.each do |r|
+      data = Redash.get_dimension(r.redash_id,r.dimension_column,r.redash)
+      data.each do |d|
+        count = Metric.where(["redash_id = ? and time_column = ? and value_column = ? and dimension_column = ? and time_unit = ? and telegram_chanel = ? and value_type = ? and redash = ? and dimension = ? and email = ?",r.redash_id,r.time_column,r.value_column,r.dimension_column,r.time_unit,r.telegram_chanel,r.value_type,r.redash,d[1],r.email])
+        if count.length == 0
+          INSERT_COUNTER.observe({ service: 'hawk_insert' }, Benchmark.realtime {1})
+          newMetric = Metric.new(:redash_id => r.redash_id,:time_column => r.time_column,:value_column => r.value_column,:dimension_column => r.dimension_column,:time_unit => r.time_unit,:telegram_chanel => r.telegram_chanel,:value_type => r.value_type,:redash => r.redash,:dimension => d[1],:on_off => 1,:email => r.email)
+          newMetric.save
+          create_status = true
+          if Metric.where(id: r.redash_id).nil?
+            create_status = false
+          end
+          json_res = metric_create_new_dimension(newMetric,r.redash_id,r.time_column,r.value_column,r.time_unit,r.value_type,100,1,r.redash,r.dimension_column,create_status,0,d[1])
+        end
+      end
+    end
+
+    date_now = DateTime.now
+    puts '{"Function":"check new dimension", "Date": "'+date_now.to_s+'", "Status": "ok"}'
+  end
+
   # update threshold
   def update_threshold
     cortabot = Cortabot.new()
@@ -260,6 +286,96 @@ class MetricController < ApplicationController
 
   def new
 
+  end
+
+  def metric_create_new_dimension(metric,query,time_column,value_column,time_unit,value_type,uthreshold,lthreshold,redash,dimension_column,create_status,isfinish,dimension)
+    cortabot = Cortabot.new()
+    Thread.new{
+      checkThread()
+      $threadCount = $threadCount + 1
+
+      if dimension != "null" && value_type != 3
+        batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, dimension_column, redash)
+      elsif value_type != 3
+        batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id, redash)
+      else
+        batas_atas = uthreshold
+        batas_bawah = lthreshold
+      end
+
+      redash_title,redash_resultid,redash_update_at = Redash.get_redash_detail(query,redash)
+      redash_schedule = getRedashSchedule(time_unit)
+      if time_unit < 4
+        redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 300).second
+      else
+        redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 60).second
+      end
+
+      if batas_atas != 0 && batas_bawah != 0 || value_type == 3
+        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
+        if value_type != 3
+          if dimension != "null"
+            data = Redash.get_outer_threshold_dimension(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas, dimension, dimension_column,redash)
+          else
+            data = Redash.get_outer_threshold(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,redash)
+          end
+          for i in 0..(data.count - 1)
+
+            alerts = Alert.new
+            alerts.value = data[i][0].to_f
+
+            if data[i][0].to_f < batas_bawah
+              alerts.is_upper = false
+            else
+              alerts.is_upper = true
+            end
+
+            checkalert = Alert.where(metric_id: metric.id, date: data[i][1])
+            checkalert.destroy_all
+
+            alerts.metric_id = metric.id
+            alerts.exclude_status = 0
+            alerts.date = data[i][1]
+            alerts.save
+          end
+        end
+        isfinish = 1
+        cortabot.hawk_loging("new dimension","SS")
+      elsif
+        # FAILED_COUNTER.increment(labels = {}, by = 1)
+        FAILED_COUNTER.observe({ service: 'hawk_failed' }, Benchmark.realtime {1})
+        date_now = DateTime.now
+        puts '{"Function":"create", "Date": "'+date_now.to_s+'", "Status": "Fail - Data Kurang Banyak"}'
+        status = 'failed'
+        isfinish = 2
+        metric.delete
+        cortabot.hawk_loging("failed new dimension","SS")
+      end
+      $threadCount = $threadCount - 1
+    }
+    if dimension != "null"
+      json_res = metric.to_hash
+      json_res['response'] = "ok"
+      return json_res
+    else
+      while isfinish == 0
+        sleep(1)
+      end
+      status = 'failed'
+      if create_status and response
+        status = 'ok'
+        date_now = DateTime.now
+        puts '{"Function":"create", "Date": "'+date_now.to_s+'", "Status": "ok"}'
+      end
+      json_res = metric.to_hash
+
+      json_res['response'] = "fail"
+      if isfinish == 1
+        metric.save
+        json_res['response'] = "ok"
+      end
+      return json_res
+    end
   end
 
   def metric_create(metric,params,create_status,isfinish,dimension)
