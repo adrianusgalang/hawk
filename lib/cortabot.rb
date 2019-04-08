@@ -112,11 +112,13 @@ class Cortabot
   end
 
   def send_cortabot_not_found(redash_title,note,redash_link,telegram_chanel_id,redash)
-    source = "https://" << get_redash_used(redash) << ".bukalapak.io/queries/" << redash_link.to_s
-    url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << redash_title.titleize << '&message=' << note.to_s << '&source=' << source << '&id=' << telegram_chanel_id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]<< '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
-    puts url
-    date_now = DateTime.current
-    HTTParty.get(URI.encode(url))
+    if telegram_chanel_id != "-341735341" && telegram_chanel_id != "-386181546"
+      source = "https://" << get_redash_used(redash) << ".bukalapak.io/queries/" << redash_link.to_s
+      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << redash_title.titleize << '&message=' << note.to_s << '&source=' << source << '&id=' << telegram_chanel_id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]<< '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
+      puts url
+      date_now = DateTime.current
+      HTTParty.get(URI.encode(url))
+    end
   end
 
   def get_redash_used(redash_used)
