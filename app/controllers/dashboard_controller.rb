@@ -20,11 +20,16 @@ class DashboardController < ApplicationController
 		graph_data_weekly = Statistic.calculate_alert_graph_data_weekly(alerts)
 
     render json: {
-      total_metrics: total_metrics,
-      total_alerts: total_alerts,
-      most_metrics_alert: most_metrics_alert,
-      graph_data_daily: graph_data_daily,
-      graph_data_weekly: graph_data_weekly
+      data: {
+				total_metrics: total_metrics,
+				total_alerts: total_alerts,
+				most_metrics_alert: most_metrics_alert,
+				graph_data_daily: graph_data_daily,
+				graph_data_weekly: graph_data_weekly
+			},
+			meta: {
+				"http_status": 200
+			}
     }.to_json
 	end
 

@@ -50,16 +50,21 @@ class MetricController < ApplicationController
     end
 
     render json: {
-          total_alert: total_alert,
-          total_upper_alert: total_upper_alert,
-          total_lower_alert: total_lower_alert,
-          maximum_value: maximum_value,
-          average_upper_value: average_upper_value,
-          minimum_value: minimum_value,
-          average_lower_value: average_lower_value,
-          graph_data_daily: graph_data_daily,
-          graph_data_weekly: graph_data_weekly
-        }.to_json
+      data:{
+        total_alert: total_alert,
+        total_upper_alert: total_upper_alert,
+        total_lower_alert: total_lower_alert,
+        maximum_value: maximum_value,
+        average_upper_value: average_upper_value,
+        minimum_value: minimum_value,
+        average_lower_value: average_lower_value,
+        graph_data_daily: graph_data_daily,
+        graph_data_weekly: graph_data_weekly
+      },
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
   end
 
   def manage
@@ -72,9 +77,13 @@ class MetricController < ApplicationController
       end
     end
 
-    render json: @metrics.map do |metric|
-      metric.to_hash
-    end.to_json
+    render json: {
+      data: @metrics,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
+
     date_now = DateTime.now
     puts '{"Function":"manage", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
@@ -125,10 +134,18 @@ class MetricController < ApplicationController
     end
 
     date_now = DateTime.now
+
+    render json: {
+      message: "all threshold updated",
+			meta: {
+				"http_status": 200
+			}
+    }.to_json
+
     puts '{"Function":"update_all", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
 
-  def checkNewDimension
+  def checknewdimension
     cortabot = Cortabot.new()
     cortabot.hawk_loging("check new dimension","SS")
     isfinish = 0
@@ -149,6 +166,13 @@ class MetricController < ApplicationController
         end
       end
     end
+
+    render json: {
+      message: "check new dimension ok",
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
 
     date_now = DateTime.now
     puts '{"Function":"check new dimension", "Date": "'+date_now.to_s+'", "Status": "ok"}'
@@ -201,6 +225,12 @@ class MetricController < ApplicationController
     }
     metric.save
 
+    render json: {
+      message: "update threshold ok",
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
     date_now = DateTime.now
     puts '{"Function":"update_threshold", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
   end
@@ -247,7 +277,15 @@ class MetricController < ApplicationController
 
   def edit
     metric = Metric.where(id: params[:id]).first
-    render json: metric.to_json
+    # render json: metric.to_json
+
+    render json: {
+      message: "edit ok",
+      data: metric,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
 
     date_now = DateTime.now
     puts '{"Function":"edit", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
@@ -265,6 +303,13 @@ class MetricController < ApplicationController
       metric.update(resource_params_manual)
     end
 
+    render json: {
+      message: "update ok",
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
+
     date_now = DateTime.now
     puts '{"Function":"update", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
   end
@@ -280,12 +325,24 @@ class MetricController < ApplicationController
     alert.destroy_all
     metric.delete
 
+    render json: {
+      message: "delete ok",
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
+
     date_now = DateTime.now
     puts '{"Function":"delete", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
   end
 
   def new
-
+    render json: {
+      message: "ok",
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
   end
 
   def metric_create_new_dimension(metric,query,time_column,value_column,time_unit,value_type,uthreshold,lthreshold,redash,dimension_column,create_status,isfinish,dimension)
@@ -490,7 +547,16 @@ class MetricController < ApplicationController
           json_res = metric_create(metric,params,create_status,isfinish,dimensions[i])
       end
       json_res['response'] = "ok"
-      render json: json_res
+
+      render json: {
+        message: "create status ok",
+        data: json_res['response'],
+        meta: {
+          "http_status": 200
+        }
+      }.to_json
+
+      # render json: json_res
     else
       # INSERT_COUNTER.increment(labels = {}, by = 1)
       INSERT_COUNTER.observe({ service: 'hawk_insert' }, Benchmark.realtime {1})
@@ -499,7 +565,16 @@ class MetricController < ApplicationController
       if Metric.where(id: params[:redash_id]).nil?
         create_status = false
       end
-      render json: metric_create(metric,params,create_status,isfinish,"null")
+      # render json: metric_create(metric,params,create_status,isfinish,"null")
+      data = metric_create(metric,params,create_status,isfinish,"null")
+      render json: {
+        message: "create status "+ data['response'],
+        data: data,
+        meta: {
+          "http_status": 200
+        }
+      }.to_json
+
     end
   end
 
@@ -775,10 +850,39 @@ class MetricController < ApplicationController
       cortabot.hawk_loging("set on",params[:id])
       metric.update(on_off:1)
     end
-    render json: metric.to_json
+    # render json: metric.to_json
+    render json: {
+      message: "on off status ok",
+      data: metric,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
 
     date_now = DateTime.now
     puts '{"Function":"set on off", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
+  end
+
+  def runinfiveminutes
+    cortabot = Cortabot.new()
+    cortabot.hawk_loging("run in 5 minute",params[:id])
+    metric = Metric.where(id: params[:id]).first
+    date_now = DateTime.current
+    metric.update(next_update:date_now + 5.minutes)
+    render json: {
+      message: "run in five minute status ok",
+      data: metric,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
+
+    date_now = DateTime.now
+    puts '{"Function":"run in five minute", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
+  end
+
+  def testroute
+    puts "hahahehehoho"
   end
 
 end

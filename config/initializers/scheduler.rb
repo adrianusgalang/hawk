@@ -26,7 +26,7 @@ end
 scheduler.cron '0 0 * * 0' do
   metricController = MetricController.new()
   metricController.update_all()
-  metricController.checkNewDimension()
+  metricController.checknewdimension()
 end
 # --------------------------------
 ######################################################

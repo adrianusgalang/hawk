@@ -12,9 +12,16 @@ class DateExcludeController < ApplicationController
       end
     end
 
-    render json: dateexcs.map do |dateexc|
-			dateexc.to_hash
-		end.to_json
+    # render json: dateexcs.map do |dateexc|
+		# 	dateexc.to_hash
+    # end.to_json
+    
+    render json: {
+      data: dateexcs,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
 
     date_now = DateTime.now
     puts '{"Function":"dateExclude-index", "Date": "'+date_now.to_s+'", "Status": "ok"}'
@@ -30,6 +37,13 @@ class DateExcludeController < ApplicationController
     alert.update(exclude_status: 0)
     dateexcs.delete
     MetricController.update_threshold_use_param(metric)
+
+    render json: {
+      message: "remove date exclude ok",
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
     date_now = DateTime.now
     puts '{"Function":"removedateexclude", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end

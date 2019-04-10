@@ -3,10 +3,18 @@ class ChannelController < ApplicationController
 	def index
 		
 		@channel = Channel.all
-		render json: @channel.map do |channel|
-      channel.to_hash
-    end.to_json
-		puts 'masuk get channel listß'
+		# render json: @channel.map do |channel|
+		# 	channel.to_hash
+		# end.to_json
+
+		render json: {
+			data: @channel,
+			meta: {
+				"http_status": 200
+			}
+		}.to_json
+	
+		puts 'masuk get channel list'
 	end
 	
 	def broadcast
@@ -30,9 +38,16 @@ class ChannelController < ApplicationController
 		end
 
 		@channel = Channel.all
-		render json: @channel.map do |channel|
-      channel.to_hash
-		end.to_json
+		# render json: @channel.map do |channel|
+      	# 	channel.to_hash
+		# end.to_json
+
+		render json: {
+			data: @channel,
+			meta: {
+				"http_status": 200
+			}
+		}.to_json
 
 	end
 

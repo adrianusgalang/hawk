@@ -13,9 +13,16 @@ class ListController < ApplicationController
       end
     end
 
-    render json: @metrics.map do |metric|
-      metric.to_hash
-    end.to_json
+    # render json: @metrics.map do |metric|
+    #   metric.to_hash
+    # end.to_json
+
+    render json: {
+      data: @metrics,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
     date_now = DateTime.now
     puts '{"Function":"list metrics", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
@@ -29,9 +36,16 @@ class ListController < ApplicationController
       end
     end
 
-    render json: @alerts.map do |alerts|
-      alerts.to_hash
-    end.to_json
+    # render json: @alerts.map do |alerts|
+    #   alerts.to_hash
+    # end.to_json
+
+    render json: {
+      data: @alerts,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
     date_now = DateTime.now
     puts '{"Function":"list alerts", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
@@ -48,9 +62,15 @@ class MetricsController < ApplicationController
       end
     end
 
-    render json: @metrics.map do |metric|
-      metric.to_hash
-    end.to_json
+    # render json: @metrics.map do |metric|
+    #   metric.to_hash
+    # end.to_json
+    render json: {
+      data: @metrics,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
     date_now = DateTime.now
     puts '{"Function":"metric-all", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
@@ -65,9 +85,15 @@ class MetricsController < ApplicationController
       end
     end
 
-    render json: @metrics.map do |metric|
-      metric.to_hash
-    end.to_json
+    # render json: @metrics.map do |metric|
+    #   metric.to_hash
+    # end.to_json
+    render json: {
+      data: @metrics,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
     date_now = DateTime.now
     puts '{"Function":"metric-group", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
@@ -83,9 +109,15 @@ class AlertsController < ApplicationController
       end
     end
 
-    render json: @alerts.map do |alert|
-      alert.to_hash
-    end.to_json
+    # render json: @alerts.map do |alert|
+    #   alert.to_hash
+    # end.to_json
+    render json: {
+      data: @alerts,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
     date_now = DateTime.now
     puts '{"Function":"alert-all", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
@@ -99,9 +131,15 @@ class AlertsController < ApplicationController
       end
     end
 
-    render json: @alerts.map do |alerts|
-      alerts.to_hash
-    end.to_json
+    # render json: @alerts.map do |alerts|
+    #   alerts.to_hash
+    # end.to_json
+    render json: {
+      data: @alerts,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
     date_now = DateTime.now
     puts '{"Function":"alert-group", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end

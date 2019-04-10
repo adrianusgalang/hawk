@@ -12,9 +12,16 @@ class AlertController < ApplicationController
       end
     end
 
-    render json: alerts.map do |alert|
-      alert.to_hash
-    end.to_json
+    # render json: alerts.map do |alert|
+    #   alert.to_hash
+    # end.to_json
+
+    render json: {
+      data: alerts,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
 
     date_now = DateTime.now
     puts '{"Function":"alert-index", "Date": "'+date_now.to_s+'", "Status": "ok"}'
@@ -51,6 +58,13 @@ class AlertController < ApplicationController
     alert.update(exclude_status: params[:alert][:set_to])
     MetricController.update_threshold_use_param(metric[0].id)
 
+    render json: {
+      message: "confirm user dimension ok",
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
+
     date_now = DateTime.now
     puts '{"Function":"confirmuser", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
@@ -58,5 +72,11 @@ class AlertController < ApplicationController
   def test_tele
     cortabot = Cortabot.new()
     cortabot.test_cortabot(params[:chatid])
+    render json: {
+      message: "test tele ok",
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
   end
 end
