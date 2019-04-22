@@ -753,12 +753,13 @@ class MetricController < ApplicationController
 
   def checkMetric
     date_current = DateTime.current
-    metrics = Metric.where(on_off: 1)
+    metrics = Metric.where("on_check = 0 and on_off = 1")
     metrics.each do |metric|
       if date_current.to_s[0..16] == (metric.next_update).to_s[0..16]
         checkThread()
         $threadCount = $threadCount + 1
         Thread.new{
+          metric.update(on_check:1)
           if (metric.result_id).to_s == (Redash.get_redash_result_id(metric.redash_id,metric.redash)).to_s
             result_redash_id = Redash.refresh(metric.redash_id,metric.redash)
           end
@@ -772,6 +773,7 @@ class MetricController < ApplicationController
           metric.update(redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
           get_alert(metric.id)
           $threadCount = $threadCount - 1
+          metric.update(on_check:0)
         }
       end
     end
