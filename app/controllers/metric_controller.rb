@@ -579,19 +579,19 @@ class MetricController < ApplicationController
   end
 
   def resource_params_manual
-    params.require(:metric).permit(:id,:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :lower_threshold, :upper_threshold, :redash, :on_off)
+    params.require(:metric).permit(:id,:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :lower_threshold, :upper_threshold, :redash, :on_off, :alert_if_null, :tag_telegram, :microservice_calculation, :microservice_render_image, :image, :on_check)
   end
 
   def resource_params
-    params.require(:metric).permit(:id,:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :redash, :on_off)
+    params.require(:metric).permit(:id,:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :redash, :on_off, :alert_if_null, :tag_telegram, :microservice_calculation, :microservice_render_image, :image, :on_check)
   end
 
   def insert_params
-    params.require(:metric).permit(:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :redash, :on_off)
+    params.require(:metric).permit(:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :redash, :on_off, :alert_if_null, :tag_telegram, :microservice_calculation, :microservice_render_image, :image, :on_check)
   end
 
   def insert_params_dimension
-    params.require(:metric).permit(:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :dimension, :dimension_column, :redash, :on_off)
+    params.require(:metric).permit(:redash_title,:redash_id, :time_column, :value_column, :time_unit, :value_type, :email, :result_id, :telegram_chanel, :dimension, :dimension_column, :redash, :on_off, :alert_if_null, :tag_telegram, :microservice_calculation, :microservice_render_image, :image, :on_check)
   end
 
   def checkThread()
