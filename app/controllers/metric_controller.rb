@@ -68,7 +68,7 @@ class MetricController < ApplicationController
   end
 
   def manage
-    @metrics = Metric.all
+    @metrics = Metric.all.order("id desc")
 
     @metrics.each do |r|
       if r.value_type != 3
@@ -152,17 +152,41 @@ class MetricController < ApplicationController
     metrics = Metric.select(:redash_id,:time_column,:value_column,:dimension_column,:time_unit,:telegram_chanel,:value_type,:redash,:email).where("dimension_column != 'NULL'").group("1,2,3,4,5,6,7,8,9")
     metrics.each do |r|
       data = Redash.get_dimension(r.redash_id,r.dimension_column,r.redash)
+      alertifnull = 0
+      sample = Metric.select("alert_if_null,count(1) as count_alert_if_null").where(["redash_id = ? and time_column = ? and value_column = ? and dimension_column = ? and time_unit = ? and telegram_chanel = ? and value_type = ? and redash = ? and email = ?",r.redash_id,r.time_column,r.value_column,r.dimension_column,r.time_unit,r.telegram_chanel,r.value_type,r.redash,r.email]).group("1").order("count_alert_if_null desc").limit(1)
+      sample.each do |x|
+        alertifnull = x.alert_if_null
+      end
+
+      tagtelegram = ""
+      sample = Metric.select("tag_telegram,count(1) as count_tag_telegram").where(["redash_id = ? and time_column = ? and value_column = ? and dimension_column = ? and time_unit = ? and telegram_chanel = ? and value_type = ? and redash = ? and email = ?",r.redash_id,r.time_column,r.value_column,r.dimension_column,r.time_unit,r.telegram_chanel,r.value_type,r.redash,r.email]).group("1").order("count_tag_telegram desc").limit(1)
+      sample.each do |x|
+        tagtelegram = x.tag_telegram
+      end
+
+      microservicecalculation = ""
+      sample = Metric.select("microservice_calculation,count(1) as count_microservice_calculation").where(["redash_id = ? and time_column = ? and value_column = ? and dimension_column = ? and time_unit = ? and telegram_chanel = ? and value_type = ? and redash = ? and email = ?",r.redash_id,r.time_column,r.value_column,r.dimension_column,r.time_unit,r.telegram_chanel,r.value_type,r.redash,r.email]).group("1").order("count_microservice_calculation desc").limit(1)
+      sample.each do |x|
+        microservicecalculation = x.microservice_calculation
+      end
+
+      microservicerenderimage = ""
+      sample = Metric.select("microservice_render_image,count(1) as count_microservice_render_image").where(["redash_id = ? and time_column = ? and value_column = ? and dimension_column = ? and time_unit = ? and telegram_chanel = ? and value_type = ? and redash = ? and email = ?",r.redash_id,r.time_column,r.value_column,r.dimension_column,r.time_unit,r.telegram_chanel,r.value_type,r.redash,r.email]).group("1").order("count_microservice_render_image desc").limit(1)
+      sample.each do |x|
+        microservicerenderimage = x.microservice_render_image
+      end
+
       data.each do |d|
         count = Metric.where(["redash_id = ? and time_column = ? and value_column = ? and dimension_column = ? and time_unit = ? and telegram_chanel = ? and value_type = ? and redash = ? and dimension = ? and email = ?",r.redash_id,r.time_column,r.value_column,r.dimension_column,r.time_unit,r.telegram_chanel,r.value_type,r.redash,d[1],r.email])
         if count.length == 0
           INSERT_COUNTER.observe({ service: 'hawk_insert' }, Benchmark.realtime {1})
-          newMetric = Metric.new(:redash_id => r.redash_id,:time_column => r.time_column,:value_column => r.value_column,:dimension_column => r.dimension_column,:time_unit => r.time_unit,:telegram_chanel => r.telegram_chanel,:value_type => r.value_type,:redash => r.redash,:dimension => d[1],:on_off => 1,:email => r.email)
+          newMetric = Metric.new(:redash_id => r.redash_id,:time_column => r.time_column,:value_column => r.value_column,:dimension_column => r.dimension_column,:time_unit => r.time_unit,:telegram_chanel => r.telegram_chanel,:value_type => r.value_type,:redash => r.redash,:dimension => d[1],:on_off => 1,:email => r.email, :alert_if_null => alertifnull, :tag_telegram => tagtelegram, :microservice_calculation => microservicecalculation, :microservice_render_image => microservicerenderimage, :image => "", :on_check => 0)
           newMetric.save
           create_status = true
           if Metric.where(id: r.redash_id).nil?
             create_status = false
           end
-          json_res = metric_create_new_dimension(newMetric,r.redash_id,r.time_column,r.value_column,r.time_unit,r.value_type,100,1,r.redash,r.dimension_column,create_status,0,d[1])
+          json_res = metric_create_new_dimension(newMetric,r.redash_id,r.time_column,r.value_column,r.time_unit,r.value_type,1,1,r.redash,r.dimension_column,create_status,0,d[1])
         end
       end
     end
