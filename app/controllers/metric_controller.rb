@@ -135,12 +135,12 @@ class MetricController < ApplicationController
 
     date_now = DateTime.now
 
-    render json: {
-      message: "all threshold updated",
-			meta: {
-				"http_status": 200
-			}
-    }.to_json
+    # render json: {
+    #   message: "all threshold updated",
+		# 	meta: {
+		# 		"http_status": 200
+		# 	}
+    # }.to_json
 
     puts '{"Function":"update_all", "Date": "'+date_now.to_s+'", "Status": "ok"}'
   end
@@ -191,12 +191,12 @@ class MetricController < ApplicationController
       end
     end
 
-    render json: {
-      message: "check new dimension ok",
-      meta: {
-        "http_status": 200
-      }
-    }.to_json
+    # render json: {
+    #   message: "check new dimension ok",
+    #   meta: {
+    #     "http_status": 200
+    #   }
+    # }.to_json
 
     date_now = DateTime.now
     puts '{"Function":"check new dimension", "Date": "'+date_now.to_s+'", "Status": "ok"}'
