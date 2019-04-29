@@ -393,7 +393,7 @@ class MetricController < ApplicationController
       end
 
       if batas_atas != 0 && batas_bawah != 0 || value_type == 3 || value_type == 4
-        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
+        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid,last_result:0)
         if value_type != 3 && value_type != 4
           if dimension != "null"
             data = Redash.get_outer_threshold_dimension(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas, dimension, dimension_column,redash)
@@ -487,7 +487,7 @@ class MetricController < ApplicationController
       end
 
       if batas_atas != 0 && batas_bawah != 0 || value_type == 3 || value_type == 4
-        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
+        metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid,last_result:0)
         if value_type != 3 && value_type != 4
           if dimension != "null"
             data = Redash.get_outer_threshold_dimension(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas, dimension, params[:metric][:dimension_column],params[:metric][:redash])
