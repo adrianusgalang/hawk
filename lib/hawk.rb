@@ -249,7 +249,7 @@ class HawkMain
           end
           date_now = date_now - day
           if date >= date_now && date < date_until
-            if value_type == 3
+            if value_type == 3 || value_type == 4
               final_value[value_counter] = Array.new
               final_value[value_counter][0] = data[i][value_column]
               final_value[value_counter][1] = date
@@ -308,7 +308,7 @@ class HawkMain
           date_now = DateTime.current
           date_now = date_now + 5.hours
           if date >= date_now && date < date_now + 1.hours
-            if value_type == 3
+            if value_type == 3 || value_type == 4
               final_value[value_counter] = Array.new
               final_value[value_counter][0] = data[i][value_column]
               final_value[value_counter][1] = date
@@ -379,7 +379,7 @@ class HawkMain
           end
 
           if date >= date_now - (2*minutes_range).minutes && date < date_now - minutes_range.minutes
-            if value_type == 3
+            if value_type == 3 || value_type == 4
               final_value[value_counter] = Array.new
               final_value[value_counter][0] = data[i][value_column]
               final_value[value_counter][1] = date

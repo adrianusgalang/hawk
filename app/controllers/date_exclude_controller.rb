@@ -7,7 +7,7 @@ class DateExcludeController < ApplicationController
     dateexcs = DateExc.select('date_excs.*','metrics.value_type','metrics.redash_id','metrics.dimension','metrics.group','metrics.time_column','metrics.value_column','metrics.time_unit','metrics.redash_title').joins('join metrics on date_excs.metric_id = metrics.id').order(date: :desc)
 
     dateexcs.each do |r|
-      if r.value_type != 3
+      if r.value_type != 3 && r.value_type != 4
         r.ratio = HawkMain.hitungInvers(r.ratio).to_s[0..8]
       end
     end

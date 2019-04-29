@@ -137,4 +137,38 @@ class Cortabot
       return 'adhoc-redash'
     end
   end
+
+
+
+  def send_cortabot_single_threshold(status,redash_title,status_uol,time_schedule,redash_link,value_column,value_alert,upper_threshold,lower_threshold,id,time_unit,lowerorhigher,dimension,redash_used)
+    title = redash_title.to_s
+    source = "https://" << get_redash_used(redash_used) << ".bukalapak.io/queries/" << redash_link.to_s
+
+    message_dimension =  ""
+    if dimension != ""
+      message_dimension =  " on dimension <code>" << dimension << "</code> "
+    end
+
+    if time_unit == 0
+      time_schedule = indo_time(time_schedule.to_s)
+    elsif time_unit > 3
+      time_schedule = indo_time(time_schedule.to_s)
+    end
+
+    if status.to_s == "warning"
+      message = "["<< status << "] " << "<code>" << value_column.to_s << "</code> " << message_dimension << " is upper than threshold. " << "The threshold is <code>" << lower_threshold.to_s << "</code>." << " Current value is <code>" << value_alert.to_s << "</code>"
+    else
+      message = "["<< status << "] " << "<code>" << value_column.to_s << "</code> " << message_dimension << " is lower than threshold. " << "The threshold is <code>" << lower_threshold.to_s << "</code>." << " Current value is <code>" << value_alert.to_s << "</code>"
+    end
+
+
+    if dimension != ""
+      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&dimension=<code>" << dimension.to_s << "</code>&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]<< '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
+    else
+      url = 'http://' << ENV["TELE_URL"] << ':' << ENV["TELE_PORT"] << '/cdbpx?title=' << title.titleize << "&time=" << time_schedule.to_s << '&message=' << message.to_s << '&source=' << source << '&id=' << id.to_s << '&token=' << ENV["TOKEN_TELEGRAM_HAWKBOT"]<< '&=<b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b> <b>:</b>'
+    end
+    puts '{"Function":"send_cortabot_manual", "Date": "'+time_schedule.to_s+'", "To": "'+id.to_s+'", "Status": "ok"}'
+    HTTParty.get(URI.encode(url))
+  end
+
 end

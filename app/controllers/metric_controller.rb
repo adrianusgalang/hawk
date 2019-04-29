@@ -37,7 +37,7 @@ class MetricController < ApplicationController
     date_now = DateTime.now
     puts '{"Function":"statistic", "Date": "'+date_now.to_s+'", "Status": "ok"}'
 
-    if @metric.value_type != 3
+    if @metric.value_type != 3 && @metric.value_type != 4
       maximum_value = HawkMain.hitungInvers(maximum_value).to_s[0..8]
       average_upper_value = HawkMain.hitungInvers(average_upper_value).to_s[0..8]
       minimum_value = HawkMain.hitungInvers(minimum_value).to_s[0..8]
@@ -71,7 +71,7 @@ class MetricController < ApplicationController
     @metrics = Metric.all.order("id desc")
 
     @metrics.each do |r|
-      if r.value_type != 3
+      if r.value_type != 3 && r.value_type != 4
         r.upper_threshold = HawkMain.hitungInvers(r.upper_threshold).to_s[0..8]
         r.lower_threshold = HawkMain.hitungInvers(r.lower_threshold).to_s[0..8]
       end
@@ -92,7 +92,7 @@ class MetricController < ApplicationController
     cortabot = Cortabot.new()
     cortabot.hawk_loging("update all threshold","FE")
     isfinish = 0
-    metrics = Metric.where("value_type != 3 and on_off = 1")
+    metrics = Metric.where("value_type != 3 and value_type != 4 and on_off = 1")
     metrics.each do |r|
       checkThread()
       $threadCount = $threadCount + 1
@@ -107,7 +107,7 @@ class MetricController < ApplicationController
 
         if dimension_column != nil
           batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, r.id, dimension, dimension_column,r.redash)
-        elsif value_type != 3
+        elsif value_type != 3 && value_type != 4
           batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, r.id,r.redash)
         else
           batas_atas = r.upper_threshold
@@ -121,7 +121,7 @@ class MetricController < ApplicationController
         else
           redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 60).second
         end
-        if batas_atas != 0 && batas_bawah != 0 || value_type == 3
+        if batas_atas != 0 && batas_bawah != 0 || value_type == 3 || value_type == 4
           r.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
         elsif
           date_now = DateTime.now
@@ -222,9 +222,9 @@ class MetricController < ApplicationController
       dimension_column = metric.dimension_column
       dimension = metric.dimension
 
-      if dimension_column != nil && value_type != 3
+      if dimension_column != nil && value_type != 3 && value_type != 4
         batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, dimension_column,metric.redash)
-      elsif value_type != 3
+      elsif value_type != 3 && value_type != 4
         batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id,metric.redash)
       else
         batas_atas = metric.upper_threshold
@@ -238,7 +238,7 @@ class MetricController < ApplicationController
       else
         redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 60).second
       end
-      if batas_atas != 0 && batas_bawah != 0 || value_type == 3
+      if batas_atas != 0 && batas_bawah != 0 || value_type == 3 || value_type == 4
         metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
         isfinish = 1
       elsif
@@ -270,9 +270,9 @@ class MetricController < ApplicationController
       dimension_column = metric.dimension_column
       dimension = metric.dimension
 
-      if dimension_column != nil && value_type != 3
+      if dimension_column != nil && value_type != 3 && value_type != 4
         batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, dimension_column,metric.redash)
-      elsif value_type != 3
+      elsif value_type != 3 && value_type != 4
         batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id,metric.redash)
       else
         batas_atas = metric.upper_threshold
@@ -286,7 +286,7 @@ class MetricController < ApplicationController
       else
         redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 60).second
       end
-      if batas_atas != 0 && batas_bawah != 0 || value_type == 3
+      if batas_atas != 0 && batas_bawah != 0 || value_type == 3 || value_type == 4
         metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
       elsif
         date_now = DateTime.now
@@ -321,7 +321,7 @@ class MetricController < ApplicationController
 
     metric = Metric.where(id: params[:id]).first
 
-    if metric.value_type != 3
+    if metric.value_type != 3 && metric.value_type != 4
       metric.update(resource_params)
     else
       metric.update(resource_params_manual)
@@ -375,9 +375,9 @@ class MetricController < ApplicationController
       checkThread()
       $threadCount = $threadCount + 1
 
-      if dimension != "null" && value_type != 3
+      if dimension != "null" && value_type != 3 && value_type != 4
         batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, dimension_column, redash)
-      elsif value_type != 3
+      elsif value_type != 3 && value_type != 4
         batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id, redash)
       else
         batas_atas = uthreshold
@@ -392,9 +392,9 @@ class MetricController < ApplicationController
         redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 60).second
       end
 
-      if batas_atas != 0 && batas_bawah != 0 || value_type == 3
+      if batas_atas != 0 && batas_bawah != 0 || value_type == 3 || value_type == 4
         metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
-        if value_type != 3
+        if value_type != 3 && value_type != 4
           if dimension != "null"
             data = Redash.get_outer_threshold_dimension(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas, dimension, dimension_column,redash)
           else
@@ -469,9 +469,9 @@ class MetricController < ApplicationController
       time_unit = params[:metric][:time_unit]
       value_type = params[:metric][:value_type]
 
-      if dimension != "null" && value_type != 3
+      if dimension != "null" && value_type != 3 && value_type != 4
         batas_bawah,batas_atas = Redash.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric.id, dimension, params[:metric][:dimension_column], params[:metric][:redash])
-      elsif value_type != 3
+      elsif value_type != 3 && value_type != 4
         batas_bawah,batas_atas = Redash.get_csv(query, time_column, value_column, time_unit, value_type, metric.id, params[:metric][:redash])
       else
         batas_atas = params[:metric][:upper_threshold]
@@ -486,9 +486,9 @@ class MetricController < ApplicationController
         redash_update_at = DateTime.parse(redash_update_at) + (redash_schedule.to_f + 60).second
       end
 
-      if batas_atas != 0 && batas_bawah != 0 || value_type == 3
+      if batas_atas != 0 && batas_bawah != 0 || value_type == 3 || value_type == 4
         metric.update(upper_threshold: batas_atas,lower_threshold:batas_bawah,redash_title:redash_title,group:getRedashTitle(redash_title),next_update:redash_update_at,schedule:redash_schedule,result_id:redash_resultid)
-        if value_type != 3
+        if value_type != 3 && value_type != 4
           if dimension != "null"
             data = Redash.get_outer_threshold_dimension(query,time_column, value_column, time_unit, value_type,batas_bawah,batas_atas, dimension, params[:metric][:dimension_column],params[:metric][:redash])
           else
@@ -560,7 +560,6 @@ class MetricController < ApplicationController
       dimensions = Redash.get_dimension(params[:metric][:redash_id],params[:metric][:dimension_column],params[:metric][:redash])
       json_res = []
       for i in 0..(dimensions.count)
-          # INSERT_COUNTER.increment(labels = {}, by = 1)
           INSERT_COUNTER.observe({ service: 'hawk_insert' }, Benchmark.realtime {1})
           params[:metric][:dimension] = dimensions[i]
           metric = Metric.create(insert_params_dimension)
@@ -580,16 +579,13 @@ class MetricController < ApplicationController
         }
       }.to_json
 
-      # render json: json_res
     else
-      # INSERT_COUNTER.increment(labels = {}, by = 1)
       INSERT_COUNTER.observe({ service: 'hawk_insert' }, Benchmark.realtime {1})
       metric = Metric.create(insert_params)
       create_status = true
       if Metric.where(id: params[:redash_id]).nil?
         create_status = false
       end
-      # render json: metric_create(metric,params,create_status,isfinish,"null")
       data = metric_create(metric,params,create_status,isfinish,"null")
       render json: {
         message: "create status "+ data['response'],
@@ -658,6 +654,7 @@ class MetricController < ApplicationController
         value_type = r.value_type
         dimension_column = r.dimension_column
         dimension = r.dimension
+        plast_result = r.last_result
         if dimension_column != nil
           value = Redash.get_result_dimension(query,value_column,time_unit,time_column,value_type,id,dimension_column,dimension,r.redash)
         else
@@ -705,11 +702,14 @@ class MetricController < ApplicationController
                 lower_threshold = lower_threshold
                 telegram_chanel_id = telegram_chanel
                 r.update(last_update:date_now,last_result:0)
-                if value_type != 3
+                if value_type != 3 && value_type != 4
                   cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
                   # SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
                   SEND_CORTABOT_COUNTER.observe({ service: 'hawk_send_cortabot' }, Benchmark.realtime { 1 })
-
+                elsif value_type == 4
+                  if plast_result != 0
+                    cortabot.send_cortabot_single_threshold("ok",redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
+                  end
                 else
                   cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
                   # SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
@@ -748,10 +748,14 @@ class MetricController < ApplicationController
                 lower_threshold = lower_threshold
                 telegram_chanel_id = telegram_chanel
                 r.update(last_update:date_now,last_result:1)
-                if value_type != 3
+                if value_type != 3 && value_type != 4
                   cortabot.send_cortabot(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
                   # SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
                   SEND_CORTABOT_COUNTER.observe({ service: 'hawk_send_cortabot' }, Benchmark.realtime {1})
+                elsif value_type == 4
+                  if plast_result != 1
+                    cortabot.send_cortabot_single_threshold("warning",redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
+                  end
                 else
                   cortabot.send_cortabot_manual(redash_title,lowerorupper,value[i][1],redash_link,value_column,value_alert,upper_threshold,lower_threshold,telegram_chanel_id,time_unit,lowerorhigher,dimension,r.redash)
                   # SEND_CORTABOT_COUNTER.increment(labels = {}, by = 1)
