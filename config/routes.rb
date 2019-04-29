@@ -42,6 +42,7 @@ Rails.application.routes.draw do
   post "/metric/:id/delete" => "metric#delete"
   get "/metric/:id/edit" => "metric#edit"
   get "/metric/:id/on-off" => "metric#on_off"
+  get "/metric/:id/alert-null-data" => "metric#alert_null_data"
   get "/metric/:id/run-in-five-minutes" => "metric#runinfiveminutes"
 
   resources :healthz

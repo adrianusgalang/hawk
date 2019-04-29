@@ -889,6 +889,30 @@ class MetricController < ApplicationController
     puts '{"Function":"set on off", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
   end
 
+  def alert_null_data
+    cortabot = Cortabot.new()
+
+    metric = Metric.where(id: params[:id]).first
+    if metric.alert_if_null == 1
+      cortabot.hawk_loging("alert if null off",params[:id])
+      metric.update(alert_if_null:0)
+    else
+      cortabot.hawk_loging("alert if null on",params[:id])
+      metric.update(alert_if_null:1)
+    end
+    # render json: metric.to_json
+    render json: {
+      message: "alert if null status ok",
+      data: metric,
+      meta: {
+        "http_status": 200
+      }
+    }.to_json
+
+    date_now = DateTime.now
+    puts '{"Function":"set alert if null", "Date": "'+date_now.to_s+'", "Id": "'+params[:id].to_s+'", "Status": "ok"}'
+  end
+
   def runinfiveminutes
     cortabot = Cortabot.new()
     cortabot.hawk_loging("run in 5 minute",params[:id])
