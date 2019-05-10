@@ -865,7 +865,7 @@ class MetricController < ApplicationController
     metrics = Metric.where(["next_update < '%s' and on_off = 1",date_now])
     metrics.each do |r|
       next_update = DateTime.parse((DateTime.current).to_s) + 300.second
-      r.update(next_update:next_update)
+      r.update(next_update:next_update,on_check:0)
     end
   end
 
