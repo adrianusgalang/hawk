@@ -12,15 +12,17 @@ metadata:
 spec:
   selector:
     matchLabels:
-      project: "{{.config.projectName}}"
-      service: "{{.service.name}}"
-      env: "{{.environment.name}}"
+      project: {{.config.projectName}}
+      service: {{.service.name}}
+      env: {{.environment.name}}
   replicas: {{.environment.replica}}
   revisionHistoryLimit: 3
   template:
     metadata:
       annotations:
         release: '{{.variable.VERSION}}'
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{.service.port}}"
       labels:
         project: {{.config.projectName}}
         service: {{.service.name}}
@@ -56,7 +58,8 @@ spec:
             cpu: {{.service.minCpu}}
         command:
         - envconsul
-        - -consul=127.0.0.1:8500
+        args:
+        - -consul=$(CONSUL_SERVER)
         - -sanitize
         - -upcase
         - -prefix={{.variable.VAR_CONSUL_PREFIX}}
@@ -64,62 +67,12 @@ spec:
         - s
         - -e
         - production
-      - name: consul
-        image: {{.variable.CI_REGISTRY}}/bukalapak/consul-image:0.2.0
-        resources:
-          limits:
-            memory: 128Mi
-            cpu: 250m
-          requests:
-            memory: 64Mi
-            cpu: 100m
         env:
-        - name: SERVICE_NAME
-          value: {{.config.projectName}}-{{.service.name}}
-        - name: SERVICE_ENVIRONMENT
-          value: {{.environment.name}}
-        - name: SERVICE_PORT
-          value: "{{.service.port}}"
-        - name: CONSUL1
+        - name: CONSUL_SERVER
           valueFrom:
             configMapKeyRef:
               name: consul-config
-              key: node1
-        - name: CONSUL2
-          valueFrom:
-            configMapKeyRef:
-              name: consul-config
-              key: node2
-        - name: CONSUL3
-          valueFrom:
-            configMapKeyRef:
-              name: consul-config
-              key: node3
-        - name: CONSUL_ENCRYPT
-          valueFrom:
-            configMapKeyRef:
-              name: consul-config
-              key: encrypt
-        - name: CONSUL_DATACENTER
-          valueFrom:
-            configMapKeyRef:
-              name: consul-config
-              key: datacenter
-        ports:
-        - containerPort: 8300
-        - containerPort: 8301
-        - containerPort: 8302
-        - containerPort: 8400
-        - containerPort: 8500
-        - containerPort: 8600
-        command:
-        - entrypoint
-        - agent
-        - -config-dir=/config
-        - -join=$(CONSUL1)
-        - -join=$(CONSUL2)
-        - -join=$(CONSUL3)
-        - -encrypt=$(CONSUL_ENCRYPT)
+              key: client
       - name: redis-hawk-cache
         image: redis:4
         ports:
