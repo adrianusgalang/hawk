@@ -1,6 +1,6 @@
 # README
 
-[![Coverage Status](https://opencov.bukalapak.io/projects/375/badge.svg)](https://opencov.bukalapak.io/projects/375)
+[![Coverage Status](https://opencov.bukalapak.io/badges/375/svg)](https://opencov.bukalapak.io/projects/375)
 ## Description
 HAWK is a system that allows anyone on Bukalapak to do monitoring on their metrics of interest by registering a redash id on HAWK dashboard. HAWK would automatically calculate the threshold (upper and lower control limit) for the monitoring. The system would create an alert when a data point crosses the threshold. By using this system, we hope that the internal monitoring in Bukalapak would be done in a simple and scientific way.
 
