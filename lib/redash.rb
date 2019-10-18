@@ -8,7 +8,7 @@ require 'set'
 class Redash
   def self.set_threshold(query, time_column, value_column, time_unit, value_type,metric_id,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/refresh'
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/refresh'
     headers = {
      "Authorization"  => redash_key
     }
@@ -24,7 +24,7 @@ class Redash
 
   def self.get_redash_detail(query,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s
     headers = {
      "Authorization"  => redash_key
     }
@@ -35,7 +35,7 @@ class Redash
 
   def self.get_csv(query, time_column, value_column, time_unit, value_type,metric_id,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
     headers = {
      "Authorization"  => redash_key
     }
@@ -54,7 +54,7 @@ class Redash
 
   def self.get_csv_dimension(query, time_column, value_column, time_unit, value_type, metric_id, dimension, dimension_column,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
     headers = {
      "Authorization"  => redash_key
     }
@@ -92,7 +92,7 @@ class Redash
     counter = 0
     result_id = 0
 		while status != 3 && status != 4 && counter < 1000
-			url = ENV["URL_REDASH"] << ':' << redash_port << '/api/jobs/' << id_query.to_s
+			url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/jobs/' << id_query.to_s
 			response = HTTParty.get(url,:headers => headers)
 			obj = response.parsed_response
 			status = obj['job']['status']
@@ -110,7 +110,7 @@ class Redash
 		headers = {
 		 "Authorization"  => redash_key
 		}
-		url = ENV["URL_REDASH"] << ':' << redash_port << '/api/query_results/' << result_id
+		url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/query_results/' << result_id
 		response = HTTParty.get(url,:headers => headers)
 		obj = response.parsed_response
 		data = obj['query_result']['data']['rows']
@@ -120,7 +120,7 @@ class Redash
 
   def self.get_result(query,value_column,time_unit,time_column,value_type,metric_id,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
     headers = {
      "Authorization"  => redash_key
     }
@@ -138,7 +138,7 @@ class Redash
 
   def self.get_result_dimension(query,value_column,time_unit,time_column,value_type,metric_id,dimension_column,dimension,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
     headers = {
      "Authorization"  => redash_key
     }
@@ -172,7 +172,7 @@ class Redash
   def self.get_outer_threshold(query, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
     # puts value_type
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
     headers = {
      "Authorization"  => redash_key
     }
@@ -192,7 +192,7 @@ class Redash
   def self.get_outer_threshold_dimension(query, time_column, value_column, time_unit, value_type,batas_bawah,batas_atas,dimension,dimension_column,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
     # puts value_type
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/results.csv'
     headers = {
      "Authorization"  => redash_key
     }
@@ -233,7 +233,7 @@ class Redash
 
   def self.calculate_median(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << redash_id.to_s << '/results.csv'
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << redash_id.to_s << '/results.csv'
     headers = {
      "Authorization"  => redash_key
     }
@@ -252,7 +252,7 @@ class Redash
 
   def self.calculate_median_dimension(redash_id,date,param_time_unit,time_column,value_column,time_unit,value_type,dimension,dimension_column,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << redash_id.to_s << '/results.csv'
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << redash_id.to_s << '/results.csv'
     headers = {
      "Authorization"  => redash_key
     }
@@ -293,7 +293,7 @@ class Redash
 
   def self.get_redash_result_id(query,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s
     headers = {
      "Authorization"  => redash_key
     }
@@ -303,7 +303,7 @@ class Redash
 
   def self.refresh(query,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/refresh'
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << query.to_s << '/refresh'
     headers = {
      "Authorization"  => redash_key
     }
@@ -316,7 +316,7 @@ class Redash
 
   def self.get_dimension(redash_id,dimension_column,redash_used)
     redash_url,redash_key,redash_port = get_redash_used(redash_used)
-    url = ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << redash_id.to_s << '/results.csv'
+    url = "" << ENV["URL_REDASH"] << ':' << redash_port << '/api/queries/' << redash_id.to_s << '/results.csv'
     headers = {
       "Authorization"  => redash_key
     }
