@@ -135,7 +135,7 @@ GEM
     prometheus-client (0.8.0)
       quantile (~> 0.2.1)
     public_suffix (3.0.3)
-    puma (3.12.0)
+    puma (3.12.4)
     quantile (0.2.1)
     raabro (1.1.6)
     rack (2.0.5)
@@ -272,7 +272,7 @@ DEPENDENCIES
   mail
   mysql2 (~> 0.5.1)
   prometheus-client
-  puma (~> 3.11)
+  puma (~> 3.12)
   rails (~> 5.2.0)
   rake (~> 12.0.0)
   redis
